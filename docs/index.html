@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090b10">
+  <meta name="description" content="OneMillionCrops is a shared one-million-of-every-crop challenge for Paper servers.">
+  <meta property="og:title" content="OneMillionCrops">
+  <meta property="og:description" content="One shared challenge. Every harvest counts.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://byalex33.github.io/one-million-crops/">
+  <meta property="og:image" content="https://byalex33.github.io/one-million-crops/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="OneMillionCrops">
+  <meta name="twitter:description" content="One shared challenge. Every harvest counts.">
+  <meta name="twitter:image" content="https://byalex33.github.io/one-million-crops/og.png">
+  <title>OneMillionCrops — Paper challenge plugin</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="OneMillionCrops home">
+      <span class="wordmark-mark" aria-hidden="true">1M</span>
+      <span>OneMillionCrops</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#install">Install</a>
+      <a href="#placeholders">Placeholders</a>
+      <a href="#commands">Commands</a>
+      <a class="nav-github" href="https://github.com/byalex33/one-million-crops">GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> Paper 1.21.11</div>
+        <h1>One million.<br><span>Every crop.</span></h1>
+        <p class="hero-lede">Turn every harvest into one shared server-wide challenge—with accurate tracking, rich celebrations, live dashboards, and PlaceholderAPI support.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://github.com/byalex33/one-million-crops/releases/latest">Download 1.0.7 <span aria-hidden="true">↓</span></a>
+          <a class="button button-secondary" href="#install">Read the docs <span aria-hidden="true">→</span></a>
+        </div>
+        <ul class="hero-facts" aria-label="Requirements">
+          <li>Java 21+</li>
+          <li>SQLite storage</li>
+          <li>Optional PlaceholderAPI</li>
+        </ul>
+      </div>
+
+      <div class="challenge-card" role="group" aria-label="Example challenge progress">
+        <div class="card-topline">
+          <div>
+            <span class="overline">Community challenge</span>
+            <strong>Harvest progress</strong>
+          </div>
+          <span class="status-pill">LIVE</span>
+        </div>
+        <div class="total-row">
+          <span>Across all crops</span>
+          <strong>8.42M <small>/ 17M</small></strong>
+        </div>
+        <div class="progress-track"><span class="example-progress"></span></div>
+        <div class="crop-grid">
+          <div class="crop-stat"><span class="crop-icon wheat">W</span><span><b>Wheat</b><small>82.4%</small></span></div>
+          <div class="crop-stat"><span class="crop-icon carrot">C</span><span><b>Carrots</b><small>67.1%</small></span></div>
+          <div class="crop-stat"><span class="crop-icon melon">M</span><span><b>Melon</b><small>53.8%</small></span></div>
+          <div class="crop-stat"><span class="crop-icon wart">N</span><span><b>Nether Wart</b><small>41.2%</small></span></div>
+        </div>
+        <div class="contribution"><span>Top contributor</span><strong>Alex · 164,820 crops</strong></div>
+      </div>
+    </section>
+
+    <section class="feature-strip" aria-label="Features">
+      <article><span class="feature-number">01</span><div><h2>Fair counting</h2><p>Tracks physical pickups while blocking common recount loops.</p></div></article>
+      <article><span class="feature-number">02</span><div><h2>Shared momentum</h2><p>Scoreboards, GUI progress, milestones, and full celebrations.</p></div></article>
+      <article><span class="feature-number">03</span><div><h2>Built to connect</h2><p>Live web dashboard plus native PlaceholderAPI values.</p></div></article>
+    </section>
+
+    <section class="docs-section" id="install">
+      <div class="section-heading">
+        <span class="section-index">01 / INSTALL</span>
+        <h2>Running in three steps.</h2>
+        <p>The plugin ships with SQLite and creates its configuration on first start.</p>
+      </div>
+      <ol class="steps">
+        <li><span>1</span><div><h3>Meet the requirements</h3><p>Run Paper 1.21.11 on Java 21 or newer. Add PlaceholderAPI 2.12.3+ if you want placeholders.</p></div></li>
+        <li><span>2</span><div><h3>Drop in the JAR</h3><p>Copy <code>OneMillionCrops-1.0.7.jar</code> into your server's <code>plugins/</code> folder.</p></div></li>
+        <li><span>3</span><div><h3>Restart and harvest</h3><p>Restart the server, then use <code>/progress</code> to open the crop progress menu.</p></div></li>
+      </ol>
+      <aside class="callout"><strong>PlaceholderAPI included.</strong> The expansion registers internally—there is no eCloud download command.</aside>
+    </section>
+
+    <section class="docs-section placeholders-section" id="placeholders">
+      <div class="section-heading split-heading">
+        <div>
+          <span class="section-index">02 / PLACEHOLDERAPI</span>
+          <h2>Progress, anywhere.</h2>
+        </div>
+        <p>Use raw values for calculations and <code>_formatted</code> variants for player-facing displays. Click any placeholder to copy it.</p>
+      </div>
+
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <span class="sr-only">Search placeholders</span>
+        <input id="placeholder-search" type="search" placeholder="Search placeholders…" autocomplete="off">
+        <kbd>/</kbd>
+      </label>
+
+      <div class="placeholder-list" id="placeholder-list">
+        <button type="button" class="placeholder-row" data-search="total harvested all enabled crops formatted"><code>%onemillioncrops_total_formatted%</code><span>Formatted total across every crop</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="percent overall completion progress"><code>%onemillioncrops_percent%</code><span>Overall completion percentage</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="goal target combined all crops formatted"><code>%onemillioncrops_goal_formatted%</code><span>Formatted combined challenge target</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="remaining challenge formatted"><code>%onemillioncrops_remaining_formatted%</code><span>Formatted amount left to harvest</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="completed crops count"><code>%onemillioncrops_completed_crops%</code><span>Number of completed crops</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="player personal contribution total formatted"><code>%onemillioncrops_player_total_formatted%</code><span>Viewing player's total contribution</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="crop wheat amount formatted specific"><code>%onemillioncrops_crop_wheat_amount_formatted%</code><span>Formatted wheat progress</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="crop nether wart percent specific"><code>%onemillioncrops_crop_nether_wart_percent%</code><span>Nether wart completion percentage</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="crop wheat player personal amount formatted contribution"><code>%onemillioncrops_crop_wheat_player_amount_formatted%</code><span>Player's formatted wheat contribution</span><em>Copy</em></button>
+        <button type="button" class="placeholder-row" data-search="all complete boolean true false"><code>%onemillioncrops_all_completed%</code><span>Whether every enabled crop is complete</span><em>Copy</em></button>
+      </div>
+      <p class="empty-state" id="empty-state" hidden>No placeholders match that search.</p>
+
+      <details class="syntax-details">
+        <summary>All supported placeholder patterns <span aria-hidden="true">+</span></summary>
+        <div class="syntax-grid">
+          <div><h3>Challenge values</h3><code>total</code><code>target</code><code>goal</code><code>remaining</code><code>percent</code><code>completed_crops</code><code>crop_count</code><code>all_completed</code><code>player_total</code></div>
+          <div><h3>Crop values</h3><code>crop_&lt;crop&gt;_amount</code><code>crop_&lt;crop&gt;_target</code><code>crop_&lt;crop&gt;_remaining</code><code>crop_&lt;crop&gt;_percent</code><code>crop_&lt;crop&gt;_completed</code><code>crop_&lt;crop&gt;_player_amount</code></div>
+        </div>
+      </details>
+    </section>
+
+    <section class="docs-section" id="commands">
+      <div class="section-heading">
+        <span class="section-index">03 / COMMANDS</span>
+        <h2>Simple for players.<br>Powerful for admins.</h2>
+      </div>
+      <table class="command-table">
+        <thead><tr><th>Command</th><th>What it does</th><th>Permission</th></tr></thead>
+        <tbody>
+          <tr><td><code>/progress [crop]</code></td><td>Open the animated progress menu</td><td><code>onemillion.progress</code></td></tr>
+          <tr><td><code>/1mill status</code></td><td>Print every crop total</td><td><code>onemillion.progress</code></td></tr>
+          <tr><td><code>/1mill scoreboard</code></td><td>Toggle the live sidebar</td><td><code>onemillion.progress</code></td></tr>
+          <tr><td><code>/1mill crops</code></td><td>Manage enabled crops</td><td><code>onemillion.admin</code></td></tr>
+          <tr><td><code>/1mill backup</code></td><td>Create a SQLite backup</td><td><code>onemillion.admin</code></td></tr>
+          <tr><td><code>/1mill reload</code></td><td>Reload configuration safely</td><td><code>onemillion.admin</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="docs-section config-section" id="configuration">
+      <div class="config-copy">
+        <span class="section-index">04 / CONFIGURATION</span>
+        <h2>Your challenge,<br>your rules.</h2>
+        <p>Change the goal, choose participants, control automated farms, tune the scoreboard, and customize every player-facing action with MiniMessage.</p>
+        <ul class="check-list">
+          <li>17 crops included by default</li>
+          <li>Live enable and disable controls</li>
+          <li>Automatic pre-reset backups</li>
+          <li>Configurable milestone celebrations</li>
+        </ul>
+      </div>
+      <section class="code-window" aria-label="Configuration example">
+        <div class="window-bar"><span></span><span></span><span></span><b>config.yml</b></div>
+        <pre><code><span class="code-key">challenge:</span>
+  <span class="code-key">target-per-crop:</span> <span class="code-number">1000000</span>
+
+<span class="code-key">participants:</span>
+  <span class="code-key">mode:</span> <span class="code-value">EVERYONE</span>
+
+<span class="code-key">counting:</span>
+  <span class="code-key">allow-automated-farms:</span> <span class="code-bool">true</span>
+  <span class="code-key">block-player-redrops:</span> <span class="code-bool">true</span>
+  <span class="code-key">require-mature-crops:</span> <span class="code-bool">true</span>
+
+<span class="code-key">celebration:</span>
+  <span class="code-key">milestones:</span> [<span class="code-number">25</span>, <span class="code-number">50</span>, <span class="code-number">75</span>, <span class="code-number">90</span>]</code></pre>
+      </section>
+    </section>
+
+    <section class="final-cta">
+      <span class="section-index">READY TO GROW?</span>
+      <h2>Every pickup moves<br>the whole server forward.</h2>
+      <div class="hero-actions">
+        <a class="button button-primary" href="https://github.com/byalex33/one-million-crops/releases/latest">Get OneMillionCrops <span aria-hidden="true">↓</span></a>
+        <a class="button button-secondary" href="https://github.com/byalex33/one-million-crops">View source <span aria-hidden="true">↗</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="wordmark" href="#top"><span class="wordmark-mark" aria-hidden="true">1M</span><span>OneMillionCrops</span></a>
+    <p>Built for Paper servers. Every harvest counts.</p>
+    <a href="https://github.com/byalex33/one-million-crops">GitHub <span aria-hidden="true">↗</span></a>
+  </footer>
+
+  <div class="toast" id="copy-toast" role="status" aria-live="polite">Placeholder copied</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃ CROPS                                                       ┃
+# ┃ item = the inventory item counted on pickup                ┃
+# ┃ sources = blocks considered a manual crop harvest          ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+# You may disable entries or add another material-based crop.
+
+crops:
+  wheat:
+    enabled: true
+    item: WHEAT
+    sources: [WHEAT]
+    display: '<gradient:#f9d423:#ffef94><bold>Wheat</bold></gradient>'
+  carrot:
+    enabled: true
+    item: CARROT
+    sources: [CARROTS]
+    display: '<gradient:#ff8c00:#ffd166><bold>Carrots</bold></gradient>'
+  potato:
+    enabled: true
+    item: POTATO
+    sources: [POTATOES]
+    display: '<gradient:#d6b36a:#fff2b2><bold>Potatoes</bold></gradient>'
+  beetroot:
+    enabled: true
+    item: BEETROOT
+    sources: [BEETROOTS]
+    display: '<gradient:#9d174d:#fb7185><bold>Beetroot</bold></gradient>'
+  nether_wart:
+    enabled: true
+    item: NETHER_WART
+    sources: [NETHER_WART]
+    display: '<gradient:#7f1d1d:#ef4444><bold>Nether Wart</bold></gradient>'
+  pumpkin:
+    enabled: true
+    item: PUMPKIN
+    sources: [PUMPKIN]
+    display: '<gradient:#f97316:#facc15><bold>Pumpkins</bold></gradient>'
+  melon:
+    enabled: true
+    item: MELON_SLICE
+    sources: [MELON]
+    display: '<gradient:#22c55e:#fb7185><bold>Melon Slices</bold></gradient>'
+  sugar_cane:
+    enabled: true
+    item: SUGAR_CANE
+    sources: [SUGAR_CANE]
+    display: '<gradient:#86efac:#ecfdf5><bold>Sugar Cane</bold></gradient>'
+  cactus:
+    enabled: true
+    item: CACTUS
+    sources: [CACTUS]
+    display: '<gradient:#15803d:#4ade80><bold>Cactus</bold></gradient>'
+  cocoa_beans:
+    enabled: true
+    item: COCOA_BEANS
+    sources: [COCOA]
+    display: '<gradient:#78350f:#d97706><bold>Cocoa Beans</bold></gradient>'
+  bamboo:
+    enabled: true
+    item: BAMBOO
+    sources: [BAMBOO, BAMBOO_SAPLING]
+    display: '<gradient:#65a30d:#bef264><bold>Bamboo</bold></gradient>'
+  kelp:
+    enabled: true
+    item: KELP
+    sources: [KELP, KELP_PLANT]
+    display: '<gradient:#14532d:#22c55e><bold>Kelp</bold></gradient>'
+  sweet_berries:
+    enabled: true
+    item: SWEET_BERRIES
+    sources: [SWEET_BERRY_BUSH]
+    display: '<gradient:#be123c:#fb7185><bold>Sweet Berries</bold></gradient>'
+  glow_berries:
+    enabled: true
+    item: GLOW_BERRIES
+    sources: [CAVE_VINES, CAVE_VINES_PLANT]
+    display: '<gradient:#f59e0b:#fef08a><bold>Glow Berries</bold></gradient>'
+  chorus_fruit:
+    enabled: true
+    item: CHORUS_FRUIT
+    sources: [CHORUS_PLANT, CHORUS_FLOWER]
+    display: '<gradient:#7e22ce:#d8b4fe><bold>Chorus Fruit</bold></gradient>'
+  red_mushroom:
+    enabled: true
+    item: RED_MUSHROOM
+    sources: [RED_MUSHROOM, RED_MUSHROOM_BLOCK]
+    display: '<gradient:#dc2626:#fecaca><bold>Red Mushrooms</bold></gradient>'
+  brown_mushroom:
+    enabled: true
+    item: BROWN_MUSHROOM
+    sources: [BROWN_MUSHROOM, BROWN_MUSHROOM_BLOCK]
+    display: '<gradient:#78350f:#d6b38c><bold>Brown Mushrooms</bold></gradient>'

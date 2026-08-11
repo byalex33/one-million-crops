@@ -1,0 +1,22 @@
+name: OneMillionCrops
+version: '1.0.7'
+main: com.onemillioncrops.OneMillionCropsPlugin
+api-version: '1.21.11'
+authors: [Alex]
+description: A shared one-million-of-every-crop challenge.
+softdepend: [PlaceholderAPI]
+commands:
+  1mill:
+    description: Manage the One Million Crops challenge
+    usage: /1mill help
+    aliases: [onemillion, 1million]
+  progress:
+    description: Open the crop progress menu
+    usage: /progress [crop]
+permissions:
+  onemillion.progress:
+    description: View challenge progress
+    default: true
+  onemillion.admin:
+    description: Reset, reload, back up, and manage the challenge
+    default: op

@@ -1,0 +1,162 @@
+prefix: '<dark_gray>[<gradient:#55ff55:#ffd54a><bold>1M</bold></gradient><dark_gray>] '
+
+no-permission:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>You do not have permission to do that.'
+player-only:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>Only a player can use that command.'
+unknown-crop:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>Unknown crop <white>%crop%</white>. Try <yellow>/1mill status</yellow>.'
+reloaded:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Configuration reloaded.'
+scoreboard-on:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Live scoreboard enabled.'
+scoreboard-off:
+  enabled: true
+  actions:
+    - '[message] %prefix%<yellow>Live scoreboard hidden.'
+crop-toggle-updating:
+  enabled: true
+  actions:
+    - '[message] %prefix%<gray>Updating %crop%<gray>…</gray>'
+crop-enabled:
+  enabled: true
+  actions:
+    - '[message] %prefix%%crop% <green>is now enabled and will count toward the challenge.'
+    - '[sound] UI_BUTTON_CLICK 0.7 1.4'
+crop-disabled:
+  enabled: true
+  actions:
+    - '[message] %prefix%%crop% <yellow>is now disabled. Its saved progress has been preserved.'
+    - '[sound] UI_BUTTON_CLICK 0.7 0.8'
+crop-toggle-last:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>At least one crop must remain enabled.'
+    - '[sound] ENTITY_VILLAGER_NO 0.7 1.0'
+crop-toggle-failed:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>Could not update the crop configuration. Check the console.'
+reset-warning:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red><bold>DANGER:</bold></red> <gray>Use <white>/1mill reset confirm</white> to erase all progress.'
+reset-complete:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>All challenge progress has been reset.'
+crop-reset-complete:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Progress for %crop%<green> has been reset.'
+backup-complete:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Backup created: <white>%file%</white>'
+backup-failed:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>Could not create a backup. Check the console.'
+reload-failed:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>Reload failed. Your existing progress is safe; check the console.'
+reset-failed:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>Reset failed; no in-memory progress was erased. Check the console.'
+operation-running:
+  enabled: true
+  actions:
+    - '[message] %prefix%<yellow>A database operation is already running.'
+web-running:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Live dashboard:</green> <yellow>%url%</yellow>'
+web-disabled:
+  enabled: true
+  actions:
+    - '[message] %prefix%<yellow>The live dashboard is disabled or could not start.'
+help:
+  enabled: true
+  actions:
+    - '[message] <gradient:#55ff55:#ffd54a><bold>One Million Crops</bold></gradient>'
+    - '[message] <yellow>/progress [crop]</yellow> <gray>— open the progress GUI</gray>'
+    - '[message] <yellow>/1mill status</yellow> <gray>— print every total</gray>'
+    - '[message] <yellow>/1mill scoreboard</yellow> <gray>— toggle the sidebar</gray>'
+    - '[message] <yellow>/1mill web</yellow> <gray>— show the live dashboard address</gray>'
+admin-help:
+  enabled: true
+  actions:
+    - '[message] <yellow>/1mill crops</yellow> <gray>— toggle crops on or off</gray>'
+    - '[message] <yellow>/1mill summary [now]</yellow> <gray>— inspect or run the periodic summary</gray>'
+    - '[message] <red>/1mill reset [crop] confirm</red> <gray>— reset progress</gray>'
+    - '[message] <yellow>/1mill backup</yellow> <dark_gray>|</dark_gray> <yellow>/1mill reload</yellow>'
+status:
+  enabled: true
+  actions:
+    - '[message] <gradient:#55ff55:#ffd54a><bold>One Million Crops</bold></gradient> <gray>— <white>%completed%/%total%</white> completed'
+    - '[message] %crop% <dark_gray>•</dark_gray> <white>%amount%/%target%</white> <gray>(%percent%%)</gray>'
+milestone:
+  enabled: true
+  actions:
+    - '[broadcast] %crop% <green>has crossed <white><bold>%percent%%</bold></white><green>!'
+    - '[actionbar] %crop% <green>reached <white><bold>%percent%%</bold></white>!</green>'
+    - '[sound] BLOCK_NOTE_BLOCK_PLING 0.7 %pitch%'
+    - '[particles] HAPPY_VILLAGER 20 0.6 0.8 0.6 0.05'
+harvest-action-bar:
+  enabled: true
+  actions:
+    - '[actionbar] %entries%'
+
+harvestSummary:
+  enabled: true
+  amount: 30 # In minutes
+  actions:
+    - '[message] '
+    - '[message] <b><gradient:#FF4B4B:#FF8B2D:#FFD031:#DCFF39:#6DFF45:#3BFFC7:#58D0FF:#5489FF>LAST 30 MINUTES</gradient></b> <dark_gray>(<gray>%total%</gray><dark_gray>)</dark_gray>'
+    - '[message] <dark_gray>  ◆</dark_gray> <white>%player%</white> <dark_gray>—</dark_gray> <green><bold>%amount%</bold> harvested</green>'
+    - '[message] '
+    - '[sound] BLOCK_NOTE_BLOCK_CHIME'
+harvest-summary-status:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Next harvest summary in <white>%time%</white>.</green> <gray>Current window: <white>%amount%</white> crops from <white>%players%</white> player(s).</gray>'
+harvest-summary-forced:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Harvest summary broadcast. A fresh %minutes%-minute window has started.'
+harvest-summary-not-scheduled:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>The harvest summary task is not currently scheduled.'
+completed-broadcast:
+  enabled: true
+  actions:
+    - '[broadcast] %crop% <gold><bold>COMPLETE!</bold></gold> <white>The team collected %target%!</white>'
+grand-finale:
+  enabled: true
+  actions:
+    - '[broadcast] <gradient:#ff4d4d:#ffd54a:#55ff55:#55ccff:#c084fc><bold>EVERY CROP IS COMPLETE — THE MILLION CROP CHALLENGE IS CONQUERED!</bold></gradient>'
+crop-celebration:
+  enabled: true
+  actions:
+    - '[title] <gradient:#ffd54a:#ffffff><bold>1,000,000!</bold></gradient> | %crop% <green>is complete! | 10 | 80 | 20'
+    - '[sound] %sound% %volume% %pitch%'
+    - '[firework] #55FF55,#FFD54A,#55FFFF | BALL_LARGE | 1 | %fireworks% | %firework-gap%'
+finale-celebration:
+  enabled: true
+  actions:
+    - '[title] <gradient:#ff4d4d:#ffd54a:#55ff55:#55ccff:#c084fc><bold>CHALLENGE COMPLETE</bold></gradient> | <white>Every crop. One million each. Legendary.</white> | 10 | 80 | 20'
+    - '[sound] %sound% %volume% %pitch%'
+    - '[firework] #55FF55,#FFD54A,#55FFFF | BALL_LARGE | 1 | %fireworks% | %firework-gap%'

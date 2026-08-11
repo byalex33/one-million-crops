@@ -1,0 +1,71 @@
+# ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+# ┃                   ONE MILLION CROPS                         ┃
+# ┃      Everything here reloads with /1mill reload            ┃
+# ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+challenge:
+  # One shared target is used for every enabled entry in crops.yml.
+  target-per-crop: 1000000
+
+participants:
+  # EVERYONE: every player contributes. Perfect for a private server.
+  # ALLOWLIST: only UUIDs below contribute (names are deliberately not used).
+  mode: EVERYONE
+  allowlist: []
+
+counting:
+  # true: unclaimed crop drops from water, pistons and automatic farms count
+  #       when a participating player eventually collects them, including from storage.
+  # false: only drops traced to a mature crop harvested by a player count.
+  allow-automated-farms: true
+
+  # Prevents Q/drop-and-repickup loops. Keep this enabled for a fair challenge.
+  block-player-redrops: true
+
+  # Player-broken crops must be fully grown before their drops become eligible.
+  require-mature-crops: true
+
+storage:
+  database-file: progress.db
+  autosave-seconds: 5
+  backup-before-reset: true
+
+web:
+  # The live dashboard is read-only. Keep localhost for use behind a reverse
+  # proxy, or change to 0.0.0.0 to expose it directly on your LAN/server.
+  enabled: true
+  bind-address: 0.0.0.0
+  port: 8765
+  # Optional externally reachable address shown by /1mill web.
+  # Example: https://crops.example.com
+  public-url: ''
+  refresh-ticks: 20
+  history:
+    sample-seconds: 30
+    retention-hours: 24
+
+scoreboard:
+  enabled-by-default: true
+  # Title animation speed. 1 tick renders the rainbow at 20 frames per second.
+  animation-ticks: 1
+  # Progress values are cheaper to refresh and do not need to animate every frame.
+  refresh-ticks: 10
+  page-change-ticks: 80
+  crops-per-page: 7
+  # Frames in one complete, seamless rotation of all gradient color stops.
+  title-animation-frames: 120
+  title-frames:
+    - '<b><gradient:#FF4B4B:#FF8B2D:#FFD031:#DCFF39:#6DFF45:#3BFFC7:#58D0FF:#5489FF>CROPS</gradient></b>'
+
+gui:
+  animation-ticks: 5
+  # Play a quiet pickup confirmation to the contributing player.
+  pickup-sound: false
+
+celebration:
+  milestones: [25, 50, 75, 90]
+  fireworks: 3
+  firework-gap-ticks: 10
+  completion-sound: minecraft:ui.toast.challenge_complete
+  completion-volume: 1.0
+  completion-pitch: 1.0

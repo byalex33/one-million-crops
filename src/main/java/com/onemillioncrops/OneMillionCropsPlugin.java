@@ -317,6 +317,7 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
                 runSyncIfActive(() -> {
                     if (crop == null) {
                         progress.resetAll();
+                        harvestSummary.resetPersonalBests();
                         sendActions("reset-complete", sender, Map.of());
                     } else {
                         progress.resetCrop(crop.id());

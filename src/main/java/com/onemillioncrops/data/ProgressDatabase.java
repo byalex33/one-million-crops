@@ -80,6 +80,12 @@ public final class ProgressDatabase implements AutoCloseable {
                         PRIMARY KEY (player_uuid, crop_id)
                     )
                     """);
+            statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS harvest_personal_bests (
+                        player_uuid TEXT PRIMARY KEY,
+                        amount INTEGER NOT NULL DEFAULT 0
+                    )
+                    """);
         }
         ensurePendingFinaleColumn();
     }
@@ -140,6 +146,45 @@ public final class ProgressDatabase implements AutoCloseable {
      */
     public synchronized void save(ProgressSnapshot snapshot, Set<String> managedCropIds) throws SQLException {
         transaction(() -> replaceManagedSnapshot(snapshot, managedCropIds));
+    }
+
+    public synchronized Map<UUID, Long> harvestPersonalBests() throws SQLException {
+        Map<UUID, Long> personalBests = new HashMap<>();
+        try (Statement statement = connection.createStatement();
+             ResultSet results = statement.executeQuery(
+                     "SELECT player_uuid, amount FROM harvest_personal_bests WHERE amount > 0")) {
+            while (results.next()) {
+                try {
+                    personalBests.put(UUID.fromString(results.getString("player_uuid")), results.getLong("amount"));
+                } catch (IllegalArgumentException exception) {
+                    logger.warning("Ignoring corrupt personal-best UUID in progress.db");
+                }
+            }
+        }
+        return Map.copyOf(personalBests);
+    }
+
+    public synchronized void saveHarvestPersonalBests(Map<UUID, Long> personalBests) throws SQLException {
+        if (personalBests.isEmpty()) {
+            return;
+        }
+        transaction(() -> {
+            try (PreparedStatement statement = connection.prepareStatement("""
+                    INSERT INTO harvest_personal_bests(player_uuid, amount) VALUES (?, ?)
+                    ON CONFLICT(player_uuid) DO UPDATE SET
+                        amount=MAX(harvest_personal_bests.amount, excluded.amount)
+                    """)) {
+                for (Map.Entry<UUID, Long> entry : personalBests.entrySet()) {
+                    if (entry.getValue() <= 0L) {
+                        continue;
+                    }
+                    statement.setString(1, entry.getKey().toString());
+                    statement.setLong(2, entry.getValue());
+                    statement.addBatch();
+                }
+                statement.executeBatch();
+            }
+        });
     }
 
     public synchronized void saveCompletion(ProgressSnapshot snapshot, String cropId, Set<UUID> players,
@@ -285,6 +330,7 @@ public final class ProgressDatabase implements AutoCloseable {
                 statement.executeUpdate("DELETE FROM crop_progress");
                 statement.executeUpdate("DELETE FROM contributions");
                 statement.executeUpdate("DELETE FROM pending_celebrations");
+                statement.executeUpdate("DELETE FROM harvest_personal_bests");
             }
         });
     }

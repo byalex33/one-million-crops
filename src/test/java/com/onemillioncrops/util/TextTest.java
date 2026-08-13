@@ -1,7 +1,9 @@
 package com.onemillioncrops.util;
 
 import org.junit.jupiter.api.Test;
+import net.kyori.adventure.text.Component;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,6 +57,8 @@ class TextTest {
         assertEquals("<color:#808000>A</color><color:#808000>B</color>",
                 Text.animatedGradient("<gradient:#FF0000:#00FF00>AB</gradient>", 0.25));
         assertEquals("<bold>CROPS</bold>", Text.animatedGradient("<bold>CROPS</bold>", 0.5));
+        assertEquals("<gradient:#FF0000:#00FF00>",
+                Text.animatedGradient("<gradient:#FF0000:#00FF00>", 0.5));
     }
 
     @Test
@@ -63,5 +67,19 @@ class TextTest {
 
         assertEquals("<color:#F44F57>C</color>", Text.animatedGradient(rainbow, 119.0 / 120.0));
         assertEquals("<color:#FF4B4B>C</color>", Text.animatedGradient(rainbow, 0.0));
+    }
+
+    @Test
+    void compilesEveryAnimatedTitleComponentAheadOfTime() {
+        Text text = new Text(null);
+
+        List<Component> frames = text.compileAnimatedGradientFrames(List.of(
+                "<gradient:#FF0000:#00FF00>AB</gradient>",
+                "<bold>Static</bold>"), 4);
+
+        assertEquals(8, frames.size());
+        assertEquals(text.parse(Text.animatedGradient(
+                "<gradient:#FF0000:#00FF00>AB</gradient>", 0.5)), frames.get(2));
+        assertEquals(text.parse("<bold>Static</bold>"), frames.get(7));
     }
 }

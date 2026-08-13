@@ -137,7 +137,7 @@ The default scoreboard title accepts a multi-stop MiniMessage gradient, then ren
 
 ## Harvest summary actions
 
-Every configurable output in `messages.yml` has an `enabled` switch and an ordered `actions` list. The harvest summary additionally has its interval in minutes at `harvestSummary.amount`. Summary actions containing `%player%` or `%amount%` run once per leaderboard row; `%total%` and `%minutes%` are available to every summary action. Placeholders always use `%name%`, while angle brackets are reserved for MiniMessage tags.
+Every configurable output in `messages.yml` has an `enabled` switch and an ordered `actions` list. The harvest summary additionally has its interval in minutes at `harvestSummary.amount`. Summary actions containing `%player%`, `%amount%`, or `%amount-display%` run once per leaderboard row; `%amount-display%` includes the configured visual treatment when the player beats their persisted personal best for a non-zero summary window. `%total%` and `%minutes%` are available to every summary action. Placeholders always use `%name%`, while angle brackets are reserved for MiniMessage tags.
 
 | Action | Syntax and defaults |
 |---|---|

@@ -11,12 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.sql.SQLException;
+import java.util.logging.Level;
 
 /** Announces how much each currently online player harvested during the configured time window. */
 public final class HarvestSummaryService {
     private final OneMillionCropsPlugin plugin;
     private final SummaryActionService actions;
     private final Map<UUID, Long> harvested = new HashMap<>();
+    private final Map<UUID, Long> personalBests = new HashMap<>();
     private BukkitTask task;
     private long nextRunAtMillis;
 
@@ -27,6 +30,13 @@ public final class HarvestSummaryService {
 
     public void start() {
         stopTask();
+        try {
+            Map<UUID, Long> loadedPersonalBests = plugin.database().harvestPersonalBests();
+            personalBests.clear();
+            personalBests.putAll(loadedPersonalBests);
+        } catch (SQLException exception) {
+            plugin.getLogger().log(Level.SEVERE, "Could not load harvest-summary personal bests", exception);
+        }
         if (plugin.configManager().harvestSummary().enabled()) {
             schedule();
         } else {
@@ -44,6 +54,10 @@ public final class HarvestSummaryService {
     public void stop() {
         stopTask();
         harvested.clear();
+    }
+
+    public void resetPersonalBests() {
+        personalBests.clear();
     }
 
     public SummaryStatus status() {
@@ -87,9 +101,21 @@ public final class HarvestSummaryService {
 
         long total = 0L;
         List<SummaryActionService.SummaryEntry> entries = new ArrayList<>();
+        Map<UUID, Long> improvedPersonalBests = new HashMap<>();
         for (PlayerTotal summary : players) {
             total = saturatingAdd(total, summary.amount());
-            entries.add(new SummaryActionService.SummaryEntry(summary.player().getName(), summary.amount()));
+            UUID playerId = summary.player().getUniqueId();
+            boolean personalBest = recordPersonalBest(personalBests, playerId, summary.amount());
+            if (personalBest) {
+                improvedPersonalBests.put(playerId, summary.amount());
+            }
+            entries.add(new SummaryActionService.SummaryEntry(
+                    summary.player().getName(), summary.amount(), personalBest));
+        }
+        try {
+            plugin.database().saveHarvestPersonalBests(improvedPersonalBests);
+        } catch (SQLException exception) {
+            plugin.getLogger().log(Level.SEVERE, "Could not save harvest-summary personal bests", exception);
         }
         actions.execute(plugin.configManager().harvestSummary().actions(),
                 players.stream().map(PlayerTotal::player).toList(), entries, total, intervalMinutes);
@@ -116,6 +142,14 @@ public final class HarvestSummaryService {
 
     static long intervalMillis(int minutes) {
         return minutes * 60L * 1_000L;
+    }
+
+    static boolean recordPersonalBest(Map<UUID, Long> personalBests, UUID player, long amount) {
+        if (amount <= 0L || amount <= personalBests.getOrDefault(player, 0L)) {
+            return false;
+        }
+        personalBests.put(player, amount);
+        return true;
     }
 
     private static long saturatingAdd(long left, long right) {

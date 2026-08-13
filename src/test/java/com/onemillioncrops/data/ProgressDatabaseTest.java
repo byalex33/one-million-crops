@@ -105,6 +105,20 @@ class ProgressDatabaseTest {
         assertTrue(database.pendingCelebrations(PLAYER).isEmpty());
     }
 
+    @Test
+    void harvestPersonalBestOnlyIncreasesAndIsClearedByFullReset() throws Exception {
+        database.saveHarvestPersonalBests(Map.of(PLAYER, 100L));
+        database.saveHarvestPersonalBests(Map.of(PLAYER, 90L));
+
+        assertEquals(Map.of(PLAYER, 100L), database.harvestPersonalBests());
+
+        database.saveHarvestPersonalBests(Map.of(PLAYER, 125L));
+        assertEquals(Map.of(PLAYER, 125L), database.harvestPersonalBests());
+
+        database.resetAll();
+        assertTrue(database.harvestPersonalBests().isEmpty());
+    }
+
     private static ProgressSnapshot snapshot(long amount, Map<UUID, Map<String, Long>> contributions) {
         return new ProgressSnapshot(Map.of("wheat", amount), contributions, Map.of("wheat", false));
     }

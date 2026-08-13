@@ -144,6 +144,7 @@ public final class ConfigManager {
         if (migrateHarvestSummary) {
             migrateHarvestSummary(loadedMessages, messagesFile);
         }
+        migrateHarvestSummaryPersonalBest(loadedMessages, messagesFile);
         migrateAllMessagePlaceholders(loadedMessages, messagesFile);
         persistMessageActionDefaults(loadedMessages, messagesFile);
         HarvestSummarySettings loadedHarvestSummary = new HarvestSummarySettings(
@@ -191,6 +192,27 @@ public final class ConfigManager {
             messages.save(messagesFile);
         } catch (IOException exception) {
             throw new IllegalStateException("Could not save configurable message actions", exception);
+        }
+    }
+
+    private void migrateHarvestSummaryPersonalBest(YamlConfiguration messages, File messagesFile) {
+        String oldDefault = "[message] <dark_gray>  ◆</dark_gray> <white>%player%</white> "
+                + "<dark_gray>—</dark_gray> <green><bold>%amount%</bold> harvested</green>";
+        String newDefault = "[message] <dark_gray>  ◆</dark_gray> <white>%player%</white> "
+                + "<dark_gray>—</dark_gray> %amount-display% <green>harvested</green>";
+        List<String> actions = messages.getStringList("harvestSummary.actions");
+        List<String> migrated = actions.stream()
+                .map(action -> action.equals(oldDefault) ? newDefault : action)
+                .toList();
+        if (migrated.equals(actions)) {
+            return;
+        }
+        messages.set("harvestSummary.actions", migrated);
+        try {
+            messages.save(messagesFile);
+            plugin.getLogger().info("Added personal-best styling to the harvest summary.");
+        } catch (IOException exception) {
+            throw new IllegalStateException("Could not migrate harvest-summary personal-best styling", exception);
         }
     }
 
@@ -303,7 +325,7 @@ public final class ConfigManager {
         String result = input;
         for (String placeholder : List.of("crop", "file", "completed", "total", "amount", "target",
                 "percent", "time", "players", "player", "minutes", "url", "entries", "pitch",
-                "sound", "volume", "fireworks", "firework-gap")) {
+                "sound", "volume", "fireworks", "firework-gap", "amount-display")) {
             result = result.replace("<" + placeholder + ">", "%" + placeholder + "%");
         }
         return result;

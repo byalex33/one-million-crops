@@ -31,6 +31,7 @@ public final class ScoreboardService {
     private final Map<UUID, PlayerBoard> boards = new HashMap<>();
     private final Map<UUID, Scoreboard> previous = new HashMap<>();
     private final Set<UUID> hidden = new HashSet<>();
+    private List<Component> titleFrames = List.of(Component.text("One Million Crops"));
     private BukkitTask animationTask;
     private long animationTick;
     private int dataRefreshTicks;
@@ -43,6 +44,9 @@ public final class ScoreboardService {
         stopTask();
         animationTick = 0;
         dataRefreshTicks = 0;
+        titleFrames = plugin.text().compileAnimatedGradientFrames(
+                plugin.configManager().settings().scoreboardTitleFrames(),
+                plugin.configManager().settings().scoreboardTitleAnimationFrames());
         int period = plugin.configManager().settings().scoreboardAnimationTicks();
         animationTask = Bukkit.getScheduler().runTaskTimer(plugin, () -> animate(period), 1L, period);
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -115,17 +119,14 @@ public final class ScoreboardService {
     }
 
     private void updateTitle(PlayerBoard board) {
-        List<String> frames = plugin.configManager().settings().scoreboardTitleFrames();
         int animationPeriod = plugin.configManager().settings().scoreboardAnimationTicks();
-        int phaseFrames = plugin.configManager().settings().scoreboardTitleAnimationFrames();
         long step = animationTick / Math.max(1, animationPeriod);
-        int phaseFrame = (int) (step % phaseFrames);
-        double progress = phaseFrame / (double) phaseFrames;
-        int titleFrame = (int) ((step / phaseFrames) % frames.size());
-        Component title = plugin.text().parse(Text.animatedGradient(frames.get(titleFrame), progress));
-        if (!title.equals(board.objective().displayName())) {
-            board.objective().displayName(title);
+        Component title = titleFrames.get((int) (step % titleFrames.size()));
+        if (title.equals(board.displayedTitle())) {
+            return;
         }
+        board.objective().displayName(title);
+        board.displayedTitle(title);
     }
 
     private void updateLines(PlayerBoard playerBoard) {
@@ -162,8 +163,9 @@ public final class ScoreboardService {
 
     private PlayerBoard createBoard() {
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Component initialTitle = Component.text("One Million Crops");
         Objective objective = scoreboard.registerNewObjective("millioncrops", Criteria.DUMMY,
-                Component.text("One Million Crops"));
+                initialTitle);
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         List<Team> lineTeams = new ArrayList<>();
         List<Component> rendered = new ArrayList<>();
@@ -178,7 +180,7 @@ public final class ScoreboardService {
             lineTeams.add(team);
             rendered.add(Component.empty());
         }
-        return new PlayerBoard(scoreboard, objective, lineTeams, rendered);
+        return new PlayerBoard(scoreboard, objective, lineTeams, rendered, initialTitle);
     }
 
     private void applyLines(PlayerBoard board, List<Component> lines) {
@@ -237,7 +239,44 @@ public final class ScoreboardService {
         }
     }
 
-    private record PlayerBoard(Scoreboard scoreboard, Objective objective,
-                               List<Team> lineTeams, List<Component> rendered) {
+    private static final class PlayerBoard {
+        private final Scoreboard scoreboard;
+        private final Objective objective;
+        private final List<Team> lineTeams;
+        private final List<Component> rendered;
+        private Component displayedTitle;
+
+        private PlayerBoard(Scoreboard scoreboard, Objective objective,
+                            List<Team> lineTeams, List<Component> rendered, Component displayedTitle) {
+            this.scoreboard = scoreboard;
+            this.objective = objective;
+            this.lineTeams = lineTeams;
+            this.rendered = rendered;
+            this.displayedTitle = displayedTitle;
+        }
+
+        private Scoreboard scoreboard() {
+            return scoreboard;
+        }
+
+        private Objective objective() {
+            return objective;
+        }
+
+        private List<Team> lineTeams() {
+            return lineTeams;
+        }
+
+        private List<Component> rendered() {
+            return rendered;
+        }
+
+        private Component displayedTitle() {
+            return displayedTitle;
+        }
+
+        private void displayedTitle(Component displayedTitle) {
+            this.displayedTitle = displayedTitle;
+        }
     }
 }

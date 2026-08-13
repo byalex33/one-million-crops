@@ -53,4 +53,14 @@ final class MessagesConfigurationTest {
             }
         }
     }
+
+    @Test
+    void harvestSummaryUsesConditionalPersonalBestAmountDisplay() {
+        var resource = Objects.requireNonNull(getClass().getResourceAsStream("/messages.yml"));
+        var yaml = YamlConfiguration.loadConfiguration(
+                new InputStreamReader(resource, StandardCharsets.UTF_8));
+
+        assertTrue(yaml.getStringList("harvestSummary.actions").stream()
+                .anyMatch(action -> action.contains("%amount-display%")));
+    }
 }

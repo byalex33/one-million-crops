@@ -125,7 +125,7 @@ harvestSummary:
   actions:
     - '[message] '
     - '[message] <b><gradient:#FF4B4B:#FF8B2D:#FFD031:#DCFF39:#6DFF45:#3BFFC7:#58D0FF:#5489FF>LAST 30 MINUTES</gradient></b> <dark_gray>(<gray>%total%</gray><dark_gray>)</dark_gray>'
-    - '[message] <dark_gray>  ◆</dark_gray> <white>%player%</white> <dark_gray>—</dark_gray> <green><bold>%amount%</bold> harvested</green>'
+    - '[message] <dark_gray>  ◆</dark_gray> <white>%player%</white> <dark_gray>—</dark_gray> %amount-display% <green>harvested</green>'
     - '[message] '
     - '[sound] BLOCK_NOTE_BLOCK_CHIME'
 harvest-summary-status:

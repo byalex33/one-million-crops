@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -38,6 +40,30 @@ final class SummaryActionServiceTest {
                 "Total %total%",
                 List.of(new SummaryActionService.SummaryEntry("Alex", 1_234L)),
                 Map.of("total", "1,234", "minutes", "30")));
+    }
+
+    @Test
+    void stylesOnlyNewPersonalBestAmounts() {
+        assertEquals(List.of(
+                        "<b><gradient:#FFCAD4:#F4ACB7:#FBC4AB:#FFD6A5:#FDFFB6>1,234</gradient></b> "
+                                + "<dark_gray>(</dark_gray><gray>New PB</gray><dark_gray>)</dark_gray>",
+                        "<green><bold>500</bold></green>"),
+                SummaryActionService.expand("%amount-display%", List.of(
+                        new SummaryActionService.SummaryEntry("Alex", 1_234L, true),
+                        new SummaryActionService.SummaryEntry("Sam", 500L, false)
+                ), Map.of()));
+    }
+
+    @Test
+    void personalBestMustBePositiveAndStrictlyHigher() {
+        UUID player = UUID.randomUUID();
+        Map<UUID, Long> personalBests = new HashMap<>();
+
+        assertEquals(false, HarvestSummaryService.recordPersonalBest(personalBests, player, 0L));
+        assertEquals(true, HarvestSummaryService.recordPersonalBest(personalBests, player, 100L));
+        assertEquals(false, HarvestSummaryService.recordPersonalBest(personalBests, player, 100L));
+        assertEquals(false, HarvestSummaryService.recordPersonalBest(personalBests, player, 99L));
+        assertEquals(true, HarvestSummaryService.recordPersonalBest(personalBests, player, 101L));
     }
 
     @Test

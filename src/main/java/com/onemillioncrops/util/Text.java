@@ -10,13 +10,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class Text {
     private static final Pattern GRADIENT_TAG = Pattern.compile("<gradient:([^>]+)>");
     private static final Pattern NUMBER_ARGUMENT = Pattern.compile("-?(?:\\d+(?:\\.\\d*)?|\\.\\d+)");
+    private static final Pattern HEX_COLOR = Pattern.compile("[0-9a-fA-F]{6}");
+    private static final Pattern ARGUMENT_SEPARATOR = Pattern.compile(":");
     private static final MiniMessage MINI = MiniMessage.miniMessage();
+    private static final Map<String, AnimatedGradient> ANIMATED_GRADIENTS = new ConcurrentHashMap<>();
     private static final LegacyComponentSerializer LEGACY = LegacyComponentSerializer.builder()
             .character('§')
             .hexColors()
@@ -33,6 +37,22 @@ public final class Text {
 
     public Component parse(String miniMessage) {
         return MINI.deserialize(miniMessage);
+    }
+
+    /**
+     * Builds all components used by a rotating title up front. Gradient parsing, RGB parsing,
+     * string rendering, and MiniMessage deserialization therefore stay out of the animation task.
+     */
+    public List<Component> compileAnimatedGradientFrames(List<String> titleFrames, int animationFrames) {
+        int phases = Math.max(1, animationFrames);
+        List<Component> compiled = new ArrayList<>(titleFrames.size() * phases);
+        for (String titleFrame : titleFrames) {
+            AnimatedGradient gradient = ANIMATED_GRADIENTS.computeIfAbsent(titleFrame, AnimatedGradient::compile);
+            for (int phase = 0; phase < phases; phase++) {
+                compiled.add(parse(gradient.render(phase / (double) phases)));
+            }
+        }
+        return List.copyOf(compiled);
     }
 
     public Component message(String key, Map<String, String> replacements) {
@@ -105,62 +125,7 @@ public final class Text {
      * use the same cyclic interpolation path.
      */
     public static String animatedGradient(String input, double progress) {
-        double normalized = Double.isFinite(progress) ? progress - Math.floor(progress) : 0.0;
-        Matcher matcher = GRADIENT_TAG.matcher(input);
-        if (!matcher.find()) {
-            return input;
-        }
-
-        String[] arguments = matcher.group(1).split(":");
-        int colorCount = arguments.length;
-        if (colorCount > 0 && NUMBER_ARGUMENT.matcher(arguments[colorCount - 1]).matches()) {
-            colorCount--;
-        }
-        if (colorCount < 2) {
-            return gradientPhase(input, -1.0 + normalized * 2.0);
-        }
-
-        List<Rgb> colors = new ArrayList<>(colorCount);
-        for (int index = 0; index < colorCount; index++) {
-            Rgb color = Rgb.parse(arguments[index]);
-            if (color == null) {
-                return gradientPhase(input, -1.0 + normalized * 2.0);
-            }
-            colors.add(color);
-        }
-
-        int closingTag = input.indexOf("</gradient>", matcher.end());
-        if (closingTag < 0) {
-            return input;
-        }
-        String content = input.substring(matcher.end(), closingTag);
-        int characters = visibleCharacters(content);
-        if (characters == 0) {
-            return input;
-        }
-
-        StringBuilder rendered = new StringBuilder(content.length() * 4);
-        int characterIndex = 0;
-        for (int offset = 0; offset < content.length();) {
-            if (content.charAt(offset) == '<') {
-                int tagEnd = content.indexOf('>', offset);
-                if (tagEnd >= 0) {
-                    rendered.append(content, offset, tagEnd + 1);
-                    offset = tagEnd + 1;
-                    continue;
-                }
-            }
-            int codePoint = content.codePointAt(offset);
-            double spread = characters <= 1 ? 0.0
-                    : characterIndex * (colors.size() - 1.0) / (characters - 1.0);
-            Rgb color = sample(colors, normalized * colors.size() + spread);
-            rendered.append("<color:").append(color.hex()).append('>')
-                    .appendCodePoint(codePoint).append("</color>");
-            characterIndex++;
-            offset += Character.charCount(codePoint);
-        }
-        return input.substring(0, matcher.start()) + rendered
-                + input.substring(closingTag + "</gradient>".length());
+        return ANIMATED_GRADIENTS.computeIfAbsent(input, AnimatedGradient::compile).render(progress);
     }
 
     private static int visibleCharacters(String input) {
@@ -189,10 +154,84 @@ public final class Text {
         return current.interpolate(next, blend);
     }
 
+    private record AnimatedGradient(String input, int gradientStart, int contentEnd, String content,
+                                    int characters, List<Rgb> colors, boolean direct, boolean phaseFallback) {
+        private static AnimatedGradient compile(String input) {
+            Matcher matcher = GRADIENT_TAG.matcher(input);
+            if (!matcher.find()) {
+                return fallback(input, true);
+            }
+
+            String[] arguments = ARGUMENT_SEPARATOR.split(matcher.group(1));
+            int colorCount = arguments.length;
+            if (colorCount > 0 && NUMBER_ARGUMENT.matcher(arguments[colorCount - 1]).matches()) {
+                colorCount--;
+            }
+            if (colorCount < 2) {
+                return fallback(input, true);
+            }
+
+            List<Rgb> colors = new ArrayList<>(colorCount);
+            for (int index = 0; index < colorCount; index++) {
+                Rgb color = Rgb.parse(arguments[index]);
+                if (color == null) {
+                    return fallback(input, true);
+                }
+                colors.add(color);
+            }
+
+            int closingTag = input.indexOf("</gradient>", matcher.end());
+            if (closingTag < 0) {
+                return fallback(input, false);
+            }
+            String content = input.substring(matcher.end(), closingTag);
+            int characters = visibleCharacters(content);
+            if (characters == 0) {
+                return fallback(input, false);
+            }
+            return new AnimatedGradient(input, matcher.start(), closingTag, content,
+                    characters, List.copyOf(colors), true, false);
+        }
+
+        private static AnimatedGradient fallback(String input, boolean phaseFallback) {
+            return new AnimatedGradient(input, 0, 0, "", 0, List.of(), false, phaseFallback);
+        }
+
+        private String render(double progress) {
+            double normalized = Double.isFinite(progress) ? progress - Math.floor(progress) : 0.0;
+            if (!direct) {
+                return phaseFallback ? gradientPhase(input, -1.0 + normalized * 2.0) : input;
+            }
+
+            StringBuilder rendered = new StringBuilder(content.length() * 4);
+            int characterIndex = 0;
+            for (int offset = 0; offset < content.length();) {
+                if (content.charAt(offset) == '<') {
+                    int tagEnd = content.indexOf('>', offset);
+                    if (tagEnd >= 0) {
+                        rendered.append(content, offset, tagEnd + 1);
+                        offset = tagEnd + 1;
+                        continue;
+                    }
+                }
+                int codePoint = content.codePointAt(offset);
+                double spread = characters <= 1 ? 0.0
+                        : characterIndex * (colors.size() - 1.0) / (characters - 1.0);
+                Rgb color = sample(colors, normalized * colors.size() + spread);
+                rendered.append("<color:").append(color.hex()).append('>')
+                        .appendCodePoint(codePoint).append("</color>");
+                characterIndex++;
+                offset += Character.charCount(codePoint);
+            }
+            return input.substring(0, gradientStart) + rendered
+                    + input.substring(contentEnd + "</gradient>".length());
+        }
+    }
+
     private record Rgb(int red, int green, int blue) {
         private static Rgb parse(String configured) {
             String hex = configured.startsWith("#") ? configured.substring(1) : configured;
-            if (!hex.matches("[0-9a-fA-F]{6}")) {
+            if (!HEX_COLOR.matcher(hex).matches()) {
                 return null;
             }
             return new Rgb(

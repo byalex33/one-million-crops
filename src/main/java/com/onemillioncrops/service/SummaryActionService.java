@@ -27,6 +27,9 @@ import java.util.regex.Pattern;
 /** Executes the configurable actions used by the periodic harvest summary. */
 public final class SummaryActionService {
     private static final Pattern ACTION = Pattern.compile("^\\s*\\[([a-zA-Z]+)](?:\\s?(.*))?$", Pattern.DOTALL);
+    private static final String PERSONAL_BEST_AMOUNT =
+            "<b><gradient:#FFCAD4:#F4ACB7:#FBC4AB:#FFD6A5:#FDFFB6>%s</gradient></b> "
+                    + "<dark_gray>(</dark_gray><gray>New PB</gray><dark_gray>)</dark_gray>";
     private static final float DEFAULT_SOUND_VOLUME = 0.7f;
     private static final float DEFAULT_SOUND_PITCH = 1.2f;
 
@@ -54,10 +57,7 @@ public final class SummaryActionService {
                 "minutes", Integer.toString(intervalMinutes),
                 "prefix", plugin.configManager().message("prefix")
         );
-        List<Map<String, String>> rows = entries.stream().map(entry -> Map.of(
-                "player", Text.escape(entry.player()),
-                "amount", Text.number(entry.amount())
-        )).toList();
+        List<Map<String, String>> rows = entries.stream().map(SummaryActionService::row).toList();
         executeExpanded(configuredActions, recipients, recipients, rows, common);
     }
 
@@ -204,11 +204,20 @@ public final class SummaryActionService {
     }
 
     static List<String> expand(String payload, List<SummaryEntry> entries, Map<String, String> common) {
-        List<Map<String, String>> rows = entries.stream().map(entry -> Map.of(
-                "player", Text.escape(entry.player()),
-                "amount", Text.number(entry.amount())
-        )).toList();
+        List<Map<String, String>> rows = entries.stream().map(SummaryActionService::row).toList();
         return expandRows(payload, rows, common);
+    }
+
+    private static Map<String, String> row(SummaryEntry entry) {
+        String amount = Text.number(entry.amount());
+        String amountDisplay = entry.personalBest()
+                ? PERSONAL_BEST_AMOUNT.formatted(amount)
+                : "<green><bold>" + amount + "</bold></green>";
+        return Map.of(
+                "player", Text.escape(entry.player()),
+                "amount", amount,
+                "amount-display", amountDisplay
+        );
     }
 
     static List<String> expandRows(String payload, List<Map<String, String>> rows, Map<String, String> common) {
@@ -324,6 +333,9 @@ public final class SummaryActionService {
     record ParsedAction(String tag, String payload) {
     }
 
-    record SummaryEntry(String player, long amount) {
+    record SummaryEntry(String player, long amount, boolean personalBest) {
+        SummaryEntry(String player, long amount) {
+            this(player, amount, false);
+        }
     }
 }

@@ -63,4 +63,14 @@ final class MessagesConfigurationTest {
         assertTrue(yaml.getStringList("harvestSummary.actions").stream()
                 .anyMatch(action -> action.contains("%amount-display%")));
     }
+
+    @Test
+    void harvestSummaryCountdownUsesRequestedTitle() {
+        var resource = Objects.requireNonNull(getClass().getResourceAsStream("/messages.yml"));
+        var yaml = YamlConfiguration.loadConfiguration(
+                new InputStreamReader(resource, StandardCharsets.UTF_8));
+
+        assertTrue(yaml.getStringList("harvest-summary-countdown.actions")
+                .contains("[countdown] Summary in %time% | GREEN | PROGRESS"));
+    }
 }

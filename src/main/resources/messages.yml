@@ -131,7 +131,7 @@ harvestSummary:
 harvest-summary-countdown:
   enabled: true
   actions:
-    - '[countdown] <gradient:#55ff55:#ffd54a><bold>NEXT HARVEST SUMMARY</bold></gradient> <white>%time%</white> | GREEN | PROGRESS'
+    - '[countdown] Summary in %time% | GREEN | PROGRESS'
 harvest-summary-status:
   enabled: true
   actions:

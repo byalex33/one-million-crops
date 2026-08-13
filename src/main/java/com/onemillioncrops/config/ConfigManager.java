@@ -145,6 +145,7 @@ public final class ConfigManager {
             migrateHarvestSummary(loadedMessages, messagesFile);
         }
         migrateHarvestSummaryPersonalBest(loadedMessages, messagesFile);
+        migrateHarvestSummaryCountdownTitle(loadedMessages, messagesFile);
         migrateAllMessagePlaceholders(loadedMessages, messagesFile);
         persistMessageActionDefaults(loadedMessages, messagesFile);
         HarvestSummarySettings loadedHarvestSummary = new HarvestSummarySettings(
@@ -213,6 +214,26 @@ public final class ConfigManager {
             plugin.getLogger().info("Added personal-best styling to the harvest summary.");
         } catch (IOException exception) {
             throw new IllegalStateException("Could not migrate harvest-summary personal-best styling", exception);
+        }
+    }
+
+    private void migrateHarvestSummaryCountdownTitle(YamlConfiguration messages, File messagesFile) {
+        String oldDefault = "[countdown] <gradient:#55ff55:#ffd54a><bold>NEXT HARVEST SUMMARY</bold>"
+                + "</gradient> <white>%time%</white> | GREEN | PROGRESS";
+        String newDefault = "[countdown] Summary in %time% | GREEN | PROGRESS";
+        List<String> actions = messages.getStringList("harvest-summary-countdown.actions");
+        List<String> migrated = actions.stream()
+                .map(action -> action.equals(oldDefault) ? newDefault : action)
+                .toList();
+        if (migrated.equals(actions)) {
+            return;
+        }
+        messages.set("harvest-summary-countdown.actions", migrated);
+        try {
+            messages.save(messagesFile);
+            plugin.getLogger().info("Updated the harvest-summary countdown title.");
+        } catch (IOException exception) {
+            throw new IllegalStateException("Could not migrate the harvest-summary countdown title", exception);
         }
     }
 

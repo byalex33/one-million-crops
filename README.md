@@ -43,7 +43,7 @@ The defaults are designed for a private server:
 - Crop items produced by breaking unrelated blocks or dropped on player death are also excluded.
 - Partially collected stacks count only the amount that entered the inventory.
 - Rapid pickups are combined into one coloured harvest action-bar message.
-- At the interval configured by `harvestSummary.amount` in `messages.yml`, its action list runs with a ranked harvest summary for everyone currently online.
+- At the interval configured by `harvestSummary.amount` in `messages.yml`, its action list runs with a ranked harvest summary for everyone currently online. A persistent MiniMessage boss bar drains from full to empty to show progress toward the next summary.
 - Admins can inspect its countdown with `/1mill summary` or broadcast it immediately with `/1mill summary now`.
 - Totals stop exactly at the configured target.
 
@@ -137,7 +137,7 @@ The default scoreboard title accepts a multi-stop MiniMessage gradient, then ren
 
 ## Harvest summary actions
 
-Every configurable output in `messages.yml` has an `enabled` switch and an ordered `actions` list. The harvest summary additionally has its interval in minutes at `harvestSummary.amount`. Summary actions containing `%player%`, `%amount%`, or `%amount-display%` run once per leaderboard row; `%amount-display%` includes the configured visual treatment when the player beats their persisted personal best for a non-zero summary window. `%total%` and `%minutes%` are available to every summary action. Placeholders always use `%name%`, while angle brackets are reserved for MiniMessage tags.
+Every configurable output in `messages.yml` has an `enabled` switch and an ordered `actions` list. The harvest summary additionally has its interval in minutes at `harvestSummary.amount`. Summary actions containing `%player%`, `%amount%`, or `%amount-display%` run once per leaderboard row; `%amount-display%` includes the configured visual treatment when the player beats their persisted personal best for a non-zero summary window. `%total%` and `%minutes%` are available to every summary action. `harvest-summary-countdown` accepts a `[countdown] <MiniMessage title> | <color> | <overlay>` action, where `%time%` is updated once per second. Placeholders always use `%name%`, while angle brackets are reserved for MiniMessage tags.
 
 | Action | Syntax and defaults |
 |---|---|

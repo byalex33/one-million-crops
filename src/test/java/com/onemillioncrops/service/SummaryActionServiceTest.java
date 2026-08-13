@@ -1,5 +1,6 @@
 package com.onemillioncrops.service;
 
+import net.kyori.adventure.bossbar.BossBar;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -70,5 +71,24 @@ final class SummaryActionServiceTest {
     void convertsConfiguredMinutesToSchedulerUnits() {
         assertEquals(36_000L, HarvestSummaryService.intervalTicks(30));
         assertEquals(1_800_000L, HarvestSummaryService.intervalMillis(30));
+    }
+
+    @Test
+    void countdownProgressDrainsTowardTheSummary() {
+        assertEquals(1.0f, HarvestSummaryService.countdownProgress(1_800_000L, 1_800_000L));
+        assertEquals(0.5f, HarvestSummaryService.countdownProgress(900_000L, 1_800_000L));
+        assertEquals(0.0f, HarvestSummaryService.countdownProgress(0L, 1_800_000L));
+        assertEquals(0.0f, HarvestSummaryService.countdownProgress(-1L, 1_800_000L));
+    }
+
+    @Test
+    void formatsAndParsesCountdownBossBar() {
+        assertEquals("30:00", HarvestSummaryService.countdownTime(1_800_000L));
+        assertEquals("1:02", HarvestSummaryService.countdownTime(61_001L));
+        assertEquals("0:00", HarvestSummaryService.countdownTime(0L));
+        assertEquals(new HarvestSummaryService.CountdownStyle(
+                        "<green>Next summary %time%</green>", BossBar.Color.YELLOW, BossBar.Overlay.NOTCHED_10),
+                HarvestSummaryService.countdownStyle(List.of(
+                        "[countdown] <green>Next summary %time%</green> | YELLOW | NOTCHED_10")));
     }
 }

@@ -23,6 +23,7 @@ public final class PlayerListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         plugin.scoreboards().showIfEnabled(event.getPlayer());
+        plugin.harvestSummary().showCountdown(event.getPlayer());
         plugin.celebrations().playPending(event.getPlayer());
     }
 
@@ -30,6 +31,7 @@ public final class PlayerListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         plugin.scoreboards().remove(event.getPlayer());
         plugin.harvestActionBar().remove(event.getPlayer());
+        plugin.harvestSummary().remove(event.getPlayer());
     }
 
     @EventHandler(ignoreCancelled = true)

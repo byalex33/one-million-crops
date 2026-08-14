@@ -3,12 +3,14 @@ package com.onemillioncrops.listener;
 import com.onemillioncrops.OneMillionCropsPlugin;
 import com.onemillioncrops.model.CropDefinition;
 import com.onemillioncrops.service.PlacedSourceTracker;
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,6 +25,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ItemMergeEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
@@ -173,6 +176,31 @@ public final class CropPickupListener implements Listener {
                 && plugin.configManager().cropByItem(event.getItemDrop().getItemStack().getType()) != null) {
             markBlocked(event.getItemDrop());
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onItemFrameChange(PlayerItemFrameChangeEvent event) {
+        ItemStack stack = event.getItemStack();
+        if (!shouldBlockItemFrameItem(plugin.configManager().settings().blockPlayerRedrops(),
+                plugin.configManager().cropByItem(stack.getType()) != null)) {
+            return;
+        }
+        markItemBlocked(stack);
+        event.setItemStack(stack);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onItemFrameBreak(HangingBreakEvent event) {
+        if (!(event.getEntity() instanceof ItemFrame frame)) {
+            return;
+        }
+        ItemStack stack = frame.getItem();
+        if (!shouldBlockItemFrameItem(plugin.configManager().settings().blockPlayerRedrops(),
+                plugin.configManager().cropByItem(stack.getType()) != null)) {
+            return;
+        }
+        markItemBlocked(stack);
+        frame.setItem(stack, false);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -401,6 +429,10 @@ public final class CropPickupListener implements Listener {
         return !blocked && (validEligibleCrop || allowAutomatedFarms)
                 ? HopperPickupPolicy.DEFER_UNTIL_PLAYER
                 : HopperPickupPolicy.BLOCK;
+    }
+
+    static boolean shouldBlockItemFrameItem(boolean blockPlayerRedrops, boolean cropItem) {
+        return blockPlayerRedrops && cropItem;
     }
 
     enum HopperPickupPolicy {

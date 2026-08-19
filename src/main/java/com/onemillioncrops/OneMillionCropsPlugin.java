@@ -5,6 +5,7 @@ import com.onemillioncrops.command.ProgressCommand;
 import com.onemillioncrops.config.ConfigManager;
 import com.onemillioncrops.data.ProgressDatabase;
 import com.onemillioncrops.listener.CropPickupListener;
+import com.onemillioncrops.listener.CropWandListener;
 import com.onemillioncrops.listener.PlayerListener;
 import com.onemillioncrops.model.CropDefinition;
 import com.onemillioncrops.model.ProgressSnapshot;
@@ -48,6 +49,7 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
     private SummaryActionService actions;
     private CelebrationService celebrations;
     private WebDashboardService dashboard;
+    private CropWandListener cropWand;
     private BukkitTask autosaveTask;
     private BukkitTask visualRefreshTask;
     private Runnable unregisterPlaceholders = () -> { };
@@ -84,6 +86,8 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
         dashboard = new WebDashboardService(this);
 
         getServer().getPluginManager().registerEvents(new CropPickupListener(this), this);
+        cropWand = new CropWandListener(this);
+        getServer().getPluginManager().registerEvents(cropWand, this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         registerCommands();
         registerPlaceholders();
@@ -119,13 +123,13 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
         unregisterPlaceholders = PlaceholderApiHook.register(this);
     }
 
-    public void recordPickup(Player player, CropDefinition crop, int amount) {
+    public long recordPickup(Player player, CropDefinition crop, int amount) {
         if (maintenance) {
-            return;
+            return 0;
         }
         ProgressService.IncrementResult result = addProgress(player.getUniqueId(), crop, amount);
         if (result.added() <= 0) {
-            return;
+            return 0;
         }
         dashboard.recordPickup(player, crop, result.added());
         harvestActionBar.record(player, crop, result.added());
@@ -134,6 +138,7 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.25f, 1.6f);
         }
         finishProgressUpdate(crop, result);
+        return result.added();
     }
 
     public void recordAutomatedPickup(CropDefinition crop, int amount) {
@@ -538,6 +543,10 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
 
     public WebDashboardService dashboard() {
         return dashboard;
+    }
+
+    public CropWandListener cropWand() {
+        return cropWand;
     }
 
     public SummaryActionService actions() {

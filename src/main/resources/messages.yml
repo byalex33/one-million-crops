@@ -95,6 +95,47 @@ help:
     - '[message] <yellow>/1mill status</yellow> <gray>— print every total</gray>'
     - '[message] <yellow>/1mill scoreboard</yellow> <gray>— toggle the sidebar</gray>'
     - '[message] <yellow>/1mill web</yellow> <gray>— show the live dashboard address</gray>'
+    - '[message] <yellow>/1mill wand</yellow> <gray>— get a crop storage wand</gray>'
+crop-wand-received:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>You received a Crop Wand.</green> <gray>Left-click storage to inspect it; right-click to deposit eligible crops.</gray>'
+crop-wand-inventory-full:
+  enabled: true
+  actions:
+    - '[message] %prefix%<red>Make room in your inventory before requesting a Crop Wand.'
+crop-wand-container-only:
+  enabled: true
+  actions:
+    - '[message] %prefix%<yellow>The Crop Wand only works on chests, trapped chests, barrels, and placed shulker boxes.'
+crop-wand-inspect-header:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Eligible crops in this storage: <white>%total%</white>'
+crop-wand-inspect-line:
+  enabled: true
+  actions:
+    - '[message] <dark_gray> •</dark_gray> %crop% <gray>×</gray><white>%amount%</white>'
+crop-wand-inspect-empty:
+  enabled: true
+  actions:
+    - '[message] %prefix%<yellow>This storage contains no eligible crops.'
+crop-wand-ignored:
+  enabled: true
+  actions:
+    - '[message] %prefix%<gray>Ignored <white>%amount%</white> unmarked or blocked crop items because they may already have counted.</gray>'
+crop-wand-deposit-header:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Deposited <white>%total%</white> eligible crops into the challenge.'
+crop-wand-deposit-line:
+  enabled: true
+  actions:
+    - '[message] <dark_gray> •</dark_gray> %crop% <green>+</green><white>%amount%</white>'
+crop-wand-deposit-empty:
+  enabled: true
+  actions:
+    - '[message] %prefix%<yellow>No eligible crops could be deposited. Completed crop goals are left in storage.</yellow>'
 admin-help:
   enabled: true
   actions:

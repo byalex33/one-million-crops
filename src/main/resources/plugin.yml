@@ -1,5 +1,5 @@
 name: OneMillionCrops
-version: '1.0.7'
+version: '1.0.8'
 main: com.onemillioncrops.OneMillionCropsPlugin
 api-version: '1.21.11'
 authors: [Alex]
@@ -16,6 +16,9 @@ commands:
 permissions:
   onemillion.progress:
     description: View challenge progress
+    default: true
+  onemillion.wand:
+    description: Obtain and use the crop wand on supported storage containers
     default: true
   onemillion.admin:
     description: Reset, reload, back up, and manage the challenge

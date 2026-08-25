@@ -28,8 +28,8 @@ import java.util.regex.Pattern;
 public final class SummaryActionService {
     private static final Pattern ACTION = Pattern.compile("^\\s*\\[([a-zA-Z]+)](?:\\s?(.*))?$", Pattern.DOTALL);
     private static final String PERSONAL_BEST_AMOUNT =
-            "<b><gradient:#FFCAD4:#F4ACB7:#FBC4AB:#FFD6A5:#FDFFB6>%s</gradient></b> "
-                    + "<dark_gray>(</dark_gray><gray>New PB</gray><dark_gray>)</dark_gray>";
+            "<#FFD166><bold>%s</bold></#FFD166> "
+                    + "<dark_gray>(</dark_gray><#8CE99A>NEW PB</#8CE99A><dark_gray>)</dark_gray>";
     private static final float DEFAULT_SOUND_VOLUME = 0.7f;
     private static final float DEFAULT_SOUND_PITCH = 1.2f;
 
@@ -212,7 +212,7 @@ public final class SummaryActionService {
         String amount = Text.number(entry.amount());
         String amountDisplay = entry.personalBest()
                 ? PERSONAL_BEST_AMOUNT.formatted(amount)
-                : "<green><bold>" + amount + "</bold></green>";
+                : "<#8CE99A><bold>" + amount + "</bold></#8CE99A>";
         return Map.of(
                 "player", Text.escape(entry.player()),
                 "amount", amount,

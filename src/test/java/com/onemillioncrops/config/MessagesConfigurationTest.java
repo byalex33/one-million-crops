@@ -1,5 +1,6 @@
 package com.onemillioncrops.config;
 
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,7 +27,7 @@ final class MessagesConfigurationTest {
                 new InputStreamReader(resource, StandardCharsets.UTF_8));
 
         for (String key : yaml.getKeys(false)) {
-            if (key.equals("prefix")) {
+            if (key.equals("prefix") || key.equals(ConfigManager.MESSAGE_PALETTE_VERSION_KEY)) {
                 continue;
             }
             var section = yaml.getConfigurationSection(key);
@@ -55,6 +57,37 @@ final class MessagesConfigurationTest {
     }
 
     @Test
+    void everyMiniMessagePayloadParses() {
+        var resource = Objects.requireNonNull(getClass().getResourceAsStream("/messages.yml"));
+        var yaml = YamlConfiguration.loadConfiguration(
+                new InputStreamReader(resource, StandardCharsets.UTF_8));
+        var miniMessage = MiniMessage.miniMessage();
+
+        miniMessage.deserialize(yaml.getString("prefix", ""));
+        for (String key : yaml.getKeys(false)) {
+            for (String action : yaml.getStringList(key + ".actions")) {
+                int payloadStart = action.indexOf(']') + 1;
+                if (payloadStart <= 0) {
+                    continue;
+                }
+                String tag = action.substring(1, payloadStart - 1).toLowerCase();
+                String payload = action.substring(payloadStart).stripLeading();
+                if (tag.equals("message") || tag.equals("broadcast") || tag.equals("actionbar")) {
+                    miniMessage.deserialize(payload);
+                } else if (tag.equals("title")) {
+                    String[] fields = payload.split("\\s*\\|\\s*", -1);
+                    miniMessage.deserialize(fields[0]);
+                    if (fields.length > 1) {
+                        miniMessage.deserialize(fields[1]);
+                    }
+                } else if (tag.equals("bossbar") || tag.equals("countdown")) {
+                    miniMessage.deserialize(payload.split("\\s*\\|\\s*", -1)[0]);
+                }
+            }
+        }
+    }
+
+    @Test
     void harvestSummaryUsesConditionalPersonalBestAmountDisplay() {
         var resource = Objects.requireNonNull(getClass().getResourceAsStream("/messages.yml"));
         var yaml = YamlConfiguration.loadConfiguration(
@@ -70,7 +103,27 @@ final class MessagesConfigurationTest {
         var yaml = YamlConfiguration.loadConfiguration(
                 new InputStreamReader(resource, StandardCharsets.UTF_8));
 
-        assertTrue(yaml.getStringList("harvest-summary-countdown.actions")
-                .contains("[countdown] Summary in %time% | GREEN | PROGRESS"));
+        assertTrue(yaml.getStringList("harvest-summary-countdown.actions").stream()
+                .anyMatch(action -> action.contains("NEXT HARVEST") && action.contains("%time%")));
+    }
+
+    @Test
+    void paletteMigrationUpdatesCopyWhilePreservingSettings() {
+        var resource = Objects.requireNonNull(getClass().getResourceAsStream("/messages.yml"));
+        var bundled = YamlConfiguration.loadConfiguration(
+                new InputStreamReader(resource, StandardCharsets.UTF_8));
+        var installed = new YamlConfiguration();
+        installed.set("prefix", "old");
+        installed.set("help.enabled", false);
+        installed.set("help.actions", List.of("[message] old"));
+        installed.set("harvestSummary.amount", 60);
+        installed.setDefaults(bundled);
+
+        assertTrue(ConfigManager.applyMessagePalette(installed, bundled));
+        assertEquals(bundled.getString("prefix"), installed.getString("prefix"));
+        assertEquals(bundled.getStringList("help.actions"), installed.getStringList("help.actions"));
+        assertFalse(installed.getBoolean("help.enabled"));
+        assertEquals(60, installed.getInt("harvestSummary.amount"));
+        assertFalse(ConfigManager.applyMessagePalette(installed, bundled));
     }
 }

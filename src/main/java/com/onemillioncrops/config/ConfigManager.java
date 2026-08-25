@@ -28,6 +28,9 @@ import java.util.Set;
 import java.util.UUID;
 
 public final class ConfigManager {
+    static final String MESSAGE_PALETTE_VERSION_KEY = "message-palette-version";
+    static final int CURRENT_MESSAGE_PALETTE_VERSION = 1;
+
     private final JavaPlugin plugin;
     private PluginSettings settings;
     private Map<String, CropDefinition> crops = Map.of();
@@ -140,13 +143,15 @@ public final class ConfigManager {
                 || loadedMessages.contains("harvest-summary-header", true)
                 || loadedMessages.contains("harvest-summary-player", true)
                 || loadedMessages.contains("harvest-summary-footer", true);
-        applyBundledMessageDefaults(loadedMessages);
+        YamlConfiguration bundledMessages = bundledMessages();
+        loadedMessages.setDefaults(bundledMessages);
         if (migrateHarvestSummary) {
             migrateHarvestSummary(loadedMessages, messagesFile);
         }
         migrateHarvestSummaryPersonalBest(loadedMessages, messagesFile);
         migrateHarvestSummaryCountdownTitle(loadedMessages, messagesFile);
         migrateAllMessagePlaceholders(loadedMessages, messagesFile);
+        migrateMessagePalette(loadedMessages, bundledMessages, messagesFile);
         persistMessageActionDefaults(loadedMessages, messagesFile);
         HarvestSummarySettings loadedHarvestSummary = new HarvestSummarySettings(
                 loadedMessages.getBoolean("harvestSummary.enabled", true),
@@ -157,16 +162,46 @@ public final class ConfigManager {
                 cropMaps.enabledIds(), cropMaps.byItem(), loadedHarvestSummary, loadedMessages);
     }
 
-    private void applyBundledMessageDefaults(YamlConfiguration loadedMessages) {
+    private YamlConfiguration bundledMessages() {
         InputStream bundled = plugin.getResource("messages.yml");
         if (bundled == null) {
             throw new IllegalStateException("The plugin JAR is missing messages.yml");
         }
         try (InputStreamReader reader = new InputStreamReader(bundled, StandardCharsets.UTF_8)) {
-            loadedMessages.setDefaults(YamlConfiguration.loadConfiguration(reader));
+            return YamlConfiguration.loadConfiguration(reader);
         } catch (IOException exception) {
             throw new IllegalStateException("Could not read the bundled messages.yml", exception);
         }
+    }
+
+    private void migrateMessagePalette(YamlConfiguration messages, YamlConfiguration bundled,
+                                       File messagesFile) {
+        if (!applyMessagePalette(messages, bundled)) {
+            return;
+        }
+        try {
+            messages.save(messagesFile);
+            plugin.getLogger().info("Updated messages.yml to the unified Crops message palette.");
+        } catch (IOException exception) {
+            throw new IllegalStateException("Could not update the messages.yml palette", exception);
+        }
+    }
+
+    static boolean applyMessagePalette(YamlConfiguration messages, YamlConfiguration bundled) {
+        if (messages.contains(MESSAGE_PALETTE_VERSION_KEY, true)
+                && messages.getInt(MESSAGE_PALETTE_VERSION_KEY) >= CURRENT_MESSAGE_PALETTE_VERSION) {
+            return false;
+        }
+
+        messages.set("prefix", bundled.getString("prefix", ""));
+        for (String key : bundled.getKeys(false)) {
+            String actionsPath = key + ".actions";
+            if (bundled.isList(actionsPath)) {
+                messages.set(actionsPath, List.copyOf(bundled.getStringList(actionsPath)));
+            }
+        }
+        messages.set(MESSAGE_PALETTE_VERSION_KEY, CURRENT_MESSAGE_PALETTE_VERSION);
+        return true;
     }
 
     private void migrateHarvestSummary(YamlConfiguration loadedMessages, File messagesFile) {

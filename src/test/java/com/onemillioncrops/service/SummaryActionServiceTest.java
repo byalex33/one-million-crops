@@ -46,9 +46,9 @@ final class SummaryActionServiceTest {
     @Test
     void stylesOnlyNewPersonalBestAmounts() {
         assertEquals(List.of(
-                        "<b><gradient:#FFCAD4:#F4ACB7:#FBC4AB:#FFD6A5:#FDFFB6>1,234</gradient></b> "
-                                + "<dark_gray>(</dark_gray><gray>New PB</gray><dark_gray>)</dark_gray>",
-                        "<green><bold>500</bold></green>"),
+                        "<#FFD166><bold>1,234</bold></#FFD166> "
+                                + "<dark_gray>(</dark_gray><#8CE99A>NEW PB</#8CE99A><dark_gray>)</dark_gray>",
+                        "<#8CE99A><bold>500</bold></#8CE99A>"),
                 SummaryActionService.expand("%amount-display%", List.of(
                         new SummaryActionService.SummaryEntry("Alex", 1_234L, true),
                         new SummaryActionService.SummaryEntry("Sam", 500L, false)

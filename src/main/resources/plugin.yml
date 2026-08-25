@@ -1,5 +1,5 @@
 name: OneMillionCrops
-version: '1.0.10'
+version: '1.0.11'
 main: com.onemillioncrops.OneMillionCropsPlugin
 api-version: '1.21.11'
 authors: [Alex]
@@ -9,7 +9,7 @@ commands:
   1mill:
     description: Manage the One Million Crops challenge
     usage: /1mill help
-    aliases: [onemillion, 1million]
+    aliases: [onemillion, 1million, 1m]
   progress:
     description: Open the crop progress menu
     usage: /progress [crop]

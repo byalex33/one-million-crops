@@ -9,6 +9,7 @@ import org.bukkit.block.Barrel;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Container;
+import org.bukkit.block.Hopper;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -103,7 +104,8 @@ public final class CropWandListener implements Listener {
     }
 
     private boolean isSupportedContainer(BlockState state) {
-        return state instanceof Chest || state instanceof Barrel || state instanceof ShulkerBox;
+        return state instanceof Chest || state instanceof Barrel || state instanceof Hopper
+                || state instanceof ShulkerBox;
     }
 
     private void inspect(Player player, Inventory inventory) {

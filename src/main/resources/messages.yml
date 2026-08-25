@@ -107,7 +107,7 @@ crop-wand-inventory-full:
 crop-wand-container-only:
   enabled: true
   actions:
-    - '[message] %prefix%<yellow>The Crop Wand only works on chests, trapped chests, barrels, and placed shulker boxes.'
+    - '[message] %prefix%<yellow>The Crop Wand only works on chests, trapped chests, barrels, hoppers, and placed shulker boxes.'
 crop-wand-inspect-header:
   enabled: true
   actions:

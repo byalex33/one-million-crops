@@ -1,5 +1,5 @@
 name: OneMillionCrops
-version: '1.0.12'
+version: '1.0.13'
 main: com.onemillioncrops.OneMillionCropsPlugin
 api-version: '1.21.11'
 authors: [Alex]
@@ -19,6 +19,9 @@ permissions:
     default: true
   onemillion.wand:
     description: Obtain and use the crop wand on supported storage containers
+    default: true
+  onemillion.plantwand:
+    description: Obtain and use the two-point farmland planting wand
     default: true
   onemillion.admin:
     description: Reset, reload, back up, and manage the challenge

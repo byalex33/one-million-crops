@@ -76,6 +76,16 @@ public final class MainCommand implements CommandExecutor, TabCompleter {
             }
             return true;
         }
+        if (subcommand.equals("plantwand")) {
+            if (!sender.hasPermission("onemillion.plantwand")) {
+                plugin.sendActions("no-permission", sender, Map.of());
+            } else if (sender instanceof Player player) {
+                plugin.plantWand().giveWand(player);
+            } else {
+                plugin.sendActions("player-only", sender, Map.of());
+            }
+            return true;
+        }
         if (!sender.hasPermission("onemillion.admin")) {
             plugin.sendActions("no-permission", sender, Map.of());
             return true;
@@ -172,6 +182,9 @@ public final class MainCommand implements CommandExecutor, TabCompleter {
             List<String> options = new ArrayList<>(List.of("help", "status", "scoreboard", "web"));
             if (sender.hasPermission("onemillion.wand")) {
                 options.add("wand");
+            }
+            if (sender.hasPermission("onemillion.plantwand")) {
+                options.add("plantwand");
             }
             if (sender.hasPermission("onemillion.admin")) {
                 options.addAll(List.of("crops", "reload", "backup", "reset", "summary"));

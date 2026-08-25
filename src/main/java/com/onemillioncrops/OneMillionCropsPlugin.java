@@ -6,6 +6,7 @@ import com.onemillioncrops.config.ConfigManager;
 import com.onemillioncrops.data.ProgressDatabase;
 import com.onemillioncrops.listener.CropPickupListener;
 import com.onemillioncrops.listener.CropWandListener;
+import com.onemillioncrops.listener.PlantWandListener;
 import com.onemillioncrops.listener.PlayerListener;
 import com.onemillioncrops.model.CropDefinition;
 import com.onemillioncrops.model.ProgressSnapshot;
@@ -50,6 +51,7 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
     private CelebrationService celebrations;
     private WebDashboardService dashboard;
     private CropWandListener cropWand;
+    private PlantWandListener plantWand;
     private BukkitTask autosaveTask;
     private BukkitTask visualRefreshTask;
     private Runnable unregisterPlaceholders = () -> { };
@@ -88,6 +90,8 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new CropPickupListener(this), this);
         cropWand = new CropWandListener(this);
         getServer().getPluginManager().registerEvents(cropWand, this);
+        plantWand = new PlantWandListener(this);
+        getServer().getPluginManager().registerEvents(plantWand, this);
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         registerCommands();
         registerPlaceholders();
@@ -547,6 +551,10 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
 
     public CropWandListener cropWand() {
         return cropWand;
+    }
+
+    public PlantWandListener plantWand() {
+        return plantWand;
     }
 
     public SummaryActionService actions() {

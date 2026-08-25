@@ -108,6 +108,7 @@ help:
     - '[message] <#8CE99A>/1m scoreboard</#8CE99A> <dark_gray>—</dark_gray> <white>toggle the live sidebar</white>'
     - '[message] <#8CE99A>/1m web</#8CE99A> <dark_gray>—</dark_gray> <white>open the live dashboard</white>'
     - '[message] <#8CE99A>/1m wand</#8CE99A> <dark_gray>—</dark_gray> <white>receive a crop storage wand</white>'
+    - '[message] <#8CE99A>/1m plantwand</#8CE99A> <dark_gray>—</dark_gray> <white>select farmland and plant it from a crop menu</white>'
 crop-wand-received:
   enabled: true
   actions:
@@ -159,6 +160,63 @@ crop-wand-seeds-empty:
   enabled: true
   actions:
     - '[message] %prefix% <white>There were no seeds to clear from storage.</white>'
+plant-wand-received:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Plant Wand received.</white> <gray>Left-click corner one, then right-click corner two to choose a crop.</gray>'
+    - '[sound] ENTITY_ITEM_PICKUP 0.7 1.45'
+plant-wand-inventory-full:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Make room in your inventory before requesting a Plant Wand.</white>'
+plant-wand-first-corner:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>First corner set at <#8CE99A>%x%, %y%, %z%</#8CE99A>.</white> <gray>Right-click the opposite corner.</gray>'
+plant-wand-second-corner:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Second corner set at <#8CE99A>%x%, %y%, %z%</#8CE99A>.</white>'
+plant-wand-first-needed:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Left-click the first corner before selecting the second.</white>'
+    - '[sound] ENTITY_VILLAGER_NO 0.6 1.1'
+plant-wand-second-needed:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Right-click the second corner to open the crop menu.</white>'
+plant-wand-different-worlds:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Both Plant Wand corners must be in your current world.</white>'
+    - '[sound] ENTITY_VILLAGER_NO 0.6 1.0'
+plant-wand-too-large:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>That selection contains <red>%volume%</red> blocks. The maximum is <#8CE99A>%maximum%</#8CE99A>.</white>'
+    - '[sound] ENTITY_VILLAGER_NO 0.6 0.9'
+plant-wand-no-farmland:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>No empty farmland was found inside that selection.</white>'
+    - '[sound] BLOCK_DISPENSER_FAIL 0.6 1.1'
+plant-wand-no-crop:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>You need <#8CE99A>%item%</#8CE99A> in your inventory to plant %crop%<white>.</white>'
+    - '[sound] BLOCK_DISPENSER_FAIL 0.6 1.1'
+plant-wand-plant-blocked:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Nothing could be planted there. Another protection plugin may be blocking the area.</white>'
+    - '[sound] ENTITY_VILLAGER_NO 0.6 1.0'
+plant-wand-planted:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Planted <#8CE99A><bold>%amount%</bold></#8CE99A> of <gray>%farmland%</gray> empty farmland with </white>%crop%<white>.</white>'
+    - '[sound] ITEM_CROP_PLANT 0.85 1.15'
+    - '[sound] BLOCK_AMETHYST_BLOCK_CHIME 0.55 1.65'
 admin-help:
   enabled: true
   actions:

@@ -47,6 +47,7 @@ public final class CropWandListener implements Listener {
         meta.lore(List.of(
                 plugin.text().parse("<gray>Left-click storage to inspect crops.</gray>"),
                 plugin.text().parse("<gray>Right-click to deposit eligible crops.</gray>"),
+                plugin.text().parse("<gray>Shift-right-click to also clear seeds.</gray>"),
                 plugin.text().parse("<dark_gray>Unmarked and blocked items are ignored.</dark_gray>")
         ));
         meta.setEnchantmentGlintOverride(true);
@@ -90,6 +91,9 @@ public final class CropWandListener implements Listener {
             inspect(player, container.getInventory());
         } else {
             deposit(player, container.getInventory());
+            if (player.isSneaking()) {
+                removeSeeds(player, container.getInventory());
+            }
         }
     }
 
@@ -143,6 +147,25 @@ public final class CropWandListener implements Listener {
             sendCropLines(player, "crop-wand-deposit-line", deposited);
         }
         sendIgnored(player, contents.ignored());
+    }
+
+    private void removeSeeds(Player player, Inventory inventory) {
+        int removed = 0;
+        for (int slot = 0; slot < inventory.getSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack == null || !isSeed(stack.getType())) {
+                continue;
+            }
+            removed += stack.getAmount();
+            inventory.setItem(slot, null);
+        }
+
+        if (removed > 0) {
+            plugin.sendActions("crop-wand-seeds-removed", player,
+                    Map.of("amount", Text.number(removed)));
+        } else {
+            plugin.sendActions("crop-wand-seeds-empty", player, Map.of());
+        }
     }
 
     private StorageContents scan(Inventory inventory) {
@@ -233,6 +256,10 @@ public final class CropWandListener implements Listener {
 
     static int depositLimit(int available, long current, long target) {
         return (int) Math.min(Math.max(0, available), Math.max(0L, target - current));
+    }
+
+    static boolean isSeed(Material material) {
+        return material != null && material.name().endsWith("_SEEDS");
     }
 
     private record StorageContents(Map<CropDefinition, Integer> eligible, int ignored) {

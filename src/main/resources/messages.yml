@@ -99,7 +99,7 @@ help:
 crop-wand-received:
   enabled: true
   actions:
-    - '[message] %prefix%<green>You received a Crop Wand.</green> <gray>Left-click storage to inspect it; right-click to deposit eligible crops.</gray>'
+    - '[message] %prefix%<green>You received a Crop Wand.</green> <gray>Left-click storage to inspect it; right-click to deposit eligible crops; shift-right-click to also clear seeds.</gray>'
 crop-wand-inventory-full:
   enabled: true
   actions:
@@ -136,6 +136,14 @@ crop-wand-deposit-empty:
   enabled: true
   actions:
     - '[message] %prefix%<yellow>No eligible crops could be deposited. Completed crop goals are left in storage.</yellow>'
+crop-wand-seeds-removed:
+  enabled: true
+  actions:
+    - '[message] %prefix%<green>Cleared <white>%amount%</white> seeds from storage.</green>'
+crop-wand-seeds-empty:
+  enabled: true
+  actions:
+    - '[message] %prefix%<yellow>There were no seeds to clear from storage.</yellow>'
 admin-help:
   enabled: true
   actions:

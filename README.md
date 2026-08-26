@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/assets/one-million-crops-hero.png" alt="Vast voxel crop fields arranged around an airstrip at sunrise" width="100%">
-</p>
-
 <h1 align="center">OneMillionCrops</h1>
 
 <p align="center">

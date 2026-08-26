@@ -1,55 +1,62 @@
-# OneMillionCrops
+<p align="center">
+  <img src="docs/assets/one-million-crops-hero.png" alt="Vast voxel crop fields arranged around an airstrip at sunrise" width="100%">
+</p>
 
-A Paper 1.21.11 plugin for a shared **one million of every crop** challenge.
+<h1 align="center">OneMillionCrops</h1>
 
-[Documentation](https://byalex33.github.io/one-million-crops/) · [Download latest release](https://github.com/byalex33/one-million-crops/releases/latest)
+<p align="center">
+  <strong>One million of every crop. One shared challenge. Every harvest counts.</strong>
+</p>
 
-All players contribute to the same totals by default. Each item physically picked up adds one: picking up a stack of 37 wheat adds 37 wheat. Progress is stored in SQLite, shown on a live rotating scoreboard, available in an animated `/progress` inventory, and streamed to a built-in web dashboard.
+<p align="center">
+  <img alt="Paper 1.21.11" src="https://img.shields.io/badge/Paper-1.21.11-2E8B57?style=for-the-badge">
+  <img alt="Java 21" src="https://img.shields.io/badge/Java-21-E76F00?style=for-the-badge">
+  <a href="https://github.com/MineWing/one-million-crops/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/MineWing/one-million-crops?style=for-the-badge&label=Release"></a>
+  <a href="https://github.com/MineWing"><img alt="MineWing" src="https://img.shields.io/badge/MineWing-Plugin_Suite-2563EB?style=for-the-badge&logo=github"></a>
+</p>
 
-## Requirements and installation
+<p align="center">
+  <a href="https://minewing.github.io/one-million-crops/">Documentation</a> ·
+  <a href="https://github.com/MineWing/one-million-crops/releases/latest">Download</a> ·
+  <a href="#commands">Commands</a> ·
+  <a href="#placeholderapi">Placeholders</a> ·
+  <a href="#live-web-dashboard">Web dashboard</a>
+</p>
 
-- Paper 1.21.11
-- Java 21 or newer
-- PlaceholderAPI 2.12.3 or newer (optional, for placeholders)
+OneMillionCrops is a server-wide Paper challenge where everyone contributes toward collecting a configurable target—one million by default—of every enabled crop. Progress is persistent, celebrations are shared, and careful provenance tracking keeps automated farms useful without allowing the same stack to be counted repeatedly.
 
-Copy [`target/OneMillionCrops-1.0.7.jar`](target/OneMillionCrops-1.0.7.jar) into the server's `plugins` folder, then restart the server. The plugin creates `config.yml`, `crops.yml`, `messages.yml`, and `progress.db` inside `plugins/OneMillionCrops/`.
+## Built for a truly shared challenge
 
-To build it again locally:
+| | |
+|---|---|
+| **One set of totals** | Every participant contributes to the same crop objectives and combined goal |
+| **Accurate counting** | Tracks crop provenance through water, pistons, hoppers, storage, partial pickups, and player drops |
+| **Live progress** | Animated `/progress` GUI, rotating scoreboard, action bars, milestones, and completion sequences |
+| **Web dashboard** | Responsive dashboard with live totals, velocity, objectives, contributors, online players, and recent pickups |
+| **Farm tools** | Storage crop wand and a protected two-point farmland planting wand |
+| **Safe persistence** | SQLite transactions, autosaves, per-player contributions, and automatic pre-reset backups |
+| **Flexible presentation** | MiniMessage action lists for broadcasts, sounds, particles, titles, boss bars, and fireworks |
+| **PlaceholderAPI** | Built-in expansion with global, per-crop, and per-player values |
 
-```shell
-cd web
-npm ci
-npm run build
-cd ..
-mvn clean package
-```
+## Counting that stays honest
 
-The compiled dashboard is checked into `src/main/resources/web`, so a Java-only Maven rebuild also packages the latest committed web assets. Node.js 22+ is only needed when changing the React frontend.
+The default rules support manual and automatic farms while preventing common recount loops:
 
-The deployable shaded JAR is `target/OneMillionCrops-1.0.7.jar`. The smaller `original-*.jar` does not contain SQLite and must not be installed.
+- Picking up a stack adds the exact amount that entered the inventory.
+- Water- and piston-harvested drops retain their provenance through hoppers and storage.
+- Eligible crops in chests, barrels, hoppers, and shulker boxes can be inspected or deposited with the Crop Wand.
+- Crops deposited by a player are not made eligible again simply by withdrawing them.
+- Deliberately dropped items and dispenser/dropper outputs remain ineligible.
+- Rebreaking a player-placed crop source does not count until it has genuinely grown.
+- Totals clamp exactly at the configured target.
 
-## Counting rules
+Set `counting.allow-automated-farms: false` to accept only drops traced to mature crops harvested by players. Participant mode defaults to `EVERYONE`; use `ALLOWLIST` with UUIDs for a closed team.
 
-The defaults are designed for a private server:
+## Player experience
 
-- `participants.mode: EVERYONE` means no usernames or team setup are needed.
-- Manual and automatic farms are accepted.
-- Water- and piston-produced crop items retain their provenance through hoppers and storage.
-- Hopper-collected crops count when a participating player removes them from storage.
-- Crop stacks placed into storage by a player do not become eligible, preventing deposit-and-withdraw recount loops.
-- Items deliberately dropped by a player are marked ineligible, preventing drop-and-repickup loops.
-- Crop items ejected by droppers or dispensers remain ineligible, so machines cannot launder an existing stack.
-- Rebreaking a player-placed crop source does not count until the block has genuinely grown.
-- Crop items produced by breaking unrelated blocks or dropped on player death are also excluded.
-- Partially collected stacks count only the amount that entered the inventory.
-- Rapid pickups are combined into one coloured harvest action-bar message.
-- At the interval configured by `harvestSummary.amount` in `messages.yml`, its action list runs with a ranked harvest summary for everyone currently online. A persistent MiniMessage boss bar drains from full to empty to show progress toward the next summary.
-- Admins can inspect its countdown with `/1mill summary` or broadcast it immediately with `/1mill summary now`.
-- Totals stop exactly at the configured target.
+`/progress` opens an animated inventory containing every enabled crop, its current amount, target, percentage, and completion state. `/1mill scoreboard` provides a compact rotating sidebar, while rapid pickups are combined into a single coloured action-bar update.
 
-Set `counting.allow-automated-farms: false` in `config.yml` to accept only drops the plugin traces to a mature player-harvested crop. Run `/1mill reload` afterward.
-
-If the server later gains more players, set `participants.mode: ALLOWLIST` and add player UUIDs to `participants.allowlist`.
+At configurable intervals, the plugin broadcasts a ranked harvest summary and shows a draining countdown boss bar. Crop milestones trigger sounds, particles, and announcements. Reaching a crop target starts a persisted completion sequence, and finishing every enabled crop launches a separate grand finale.
 
 ## Commands
 
@@ -58,63 +65,68 @@ If the server later gains more players, set `participants.mode: ALLOWLIST` and a
 | `/progress [crop]` | Open the animated progress GUI | `onemillion.progress` |
 | `/1mill status` | Print every crop total | `onemillion.progress` |
 | `/1mill scoreboard` | Toggle the live sidebar | `onemillion.progress` |
-| `/1mill web` | Show the live dashboard address | `onemillion.progress` |
+| `/1mill web` | Show the configured dashboard address | `onemillion.progress` |
+| `/1mill wand` | Receive the crop storage wand | `onemillion.wand` |
+| `/1mill plantwand` | Receive the two-point farmland planting wand | `onemillion.plantwand` |
 | `/1mill crops` | Open the crop enable/disable GUI | `onemillion.admin` |
-| `/1mill reload` | Reload YAML configuration | `onemillion.admin` |
+| `/1mill summary` | Inspect the next harvest summary | `onemillion.admin` |
+| `/1mill summary now` | Broadcast the harvest summary immediately | `onemillion.admin` |
 | `/1mill backup` | Create a timestamped SQLite backup | `onemillion.admin` |
-| `/1mill reset confirm` | Back up and reset everything | `onemillion.admin` |
+| `/1mill reload` | Reload supported configuration | `onemillion.admin` |
 | `/1mill reset <crop> confirm` | Back up and reset one crop | `onemillion.admin` |
+| `/1mill reset confirm` | Back up and reset the complete challenge | `onemillion.admin` |
 
-`onemillion.progress` is granted to everyone. `onemillion.admin` defaults to server operators.
+`onemillion.progress`, `onemillion.wand`, and `onemillion.plantwand` are available to everyone by default. `onemillion.admin` defaults to server operators.
+
+## Install
+
+### Requirements
+
+- Paper 1.21.11
+- Java 21 or newer
+- PlaceholderAPI 2.12.3 or newer (optional)
+
+1. Download the shaded JAR from the [latest release](https://github.com/MineWing/one-million-crops/releases/latest), or build it from source.
+2. Place `OneMillionCrops-*.jar` in the server's `plugins/` directory.
+3. Restart Paper.
+4. Open the challenge with `/progress`.
+
+The plugin creates `config.yml`, `crops.yml`, `messages.yml`, `progress.db`, and `backups/` under `plugins/OneMillionCrops/`. Always install the shaded `OneMillionCrops-*.jar`; an `original-*.jar` does not include SQLite.
+
+## Configuration
+
+| File | Responsibility |
+|---|---|
+| `config.yml` | Target, participants, counting rules, scoreboard, web server, autosaves, and celebrations |
+| `crops.yml` | Enabled crops, item materials, harvest source blocks, and MiniMessage display names |
+| `messages.yml` | Ordered action lists for every player-facing event |
+| `progress.db` | Shared totals, contributions, completion state, and queued celebrations |
+| `backups/` | Manual and automatic pre-reset database backups |
+
+The default catalogue includes wheat, carrots, potatoes, beetroot, nether wart, pumpkins, melon slices, sugar cane, cactus, cocoa beans, bamboo, kelp, berries, chorus fruit, and mushrooms. Crops can be toggled live with `/1mill crops`; disabled progress is preserved.
 
 ## PlaceholderAPI
 
-When PlaceholderAPI is installed, OneMillionCrops registers an internal expansion automatically. No eCloud expansion download is required. All numeric placeholders have a raw variant for calculations and a `_formatted` variant with thousands separators.
+PlaceholderAPI is optional and requires no separate eCloud expansion. Common values include:
 
 | Placeholder | Value |
 |---|---|
-| `%onemillioncrops_total%` | Harvested total across all enabled crops |
-| `%onemillioncrops_total_formatted%` | Formatted harvested total |
-| `%onemillioncrops_target%` | Target for each crop |
-| `%onemillioncrops_target_formatted%` | Formatted target for each crop |
-| `%onemillioncrops_goal%` | Combined target across all enabled crops |
-| `%onemillioncrops_goal_formatted%` | Formatted combined target |
-| `%onemillioncrops_remaining%` | Remaining amount across the whole challenge |
-| `%onemillioncrops_remaining_formatted%` | Formatted remaining amount |
-| `%onemillioncrops_percent%` | Overall completion percentage with two decimal places |
+| `%onemillioncrops_total%` | Total collected across enabled crops |
+| `%onemillioncrops_goal%` | Combined target across enabled crops |
+| `%onemillioncrops_remaining%` | Remaining amount across the challenge |
+| `%onemillioncrops_percent%` | Overall completion percentage |
 | `%onemillioncrops_completed_crops%` | Number of completed crops |
-| `%onemillioncrops_crop_count%` | Number of enabled crops |
-| `%onemillioncrops_all_completed%` | `true` when every enabled crop is complete |
-| `%onemillioncrops_player_total%` | Viewing player's total contribution |
-| `%onemillioncrops_player_total_formatted%` | Formatted player contribution |
+| `%onemillioncrops_player_total%` | Viewing player's contribution |
+| `%onemillioncrops_crop_<crop>_amount%` | Current amount for a crop |
+| `%onemillioncrops_crop_<crop>_remaining%` | Remaining amount for a crop |
+| `%onemillioncrops_crop_<crop>_percent%` | Completion percentage for a crop |
+| `%onemillioncrops_crop_<crop>_player_amount%` | Viewing player's contribution to a crop |
 
-Crop-specific placeholders use the crop ID from `crops.yml`, including IDs containing underscores. Replace `<crop>` below with values such as `wheat` or `nether_wart`.
-
-| Placeholder | Value |
-|---|---|
-| `%onemillioncrops_crop_<crop>%` | Current amount (short form) |
-| `%onemillioncrops_crop_<crop>_amount%` | Current amount |
-| `%onemillioncrops_crop_<crop>_amount_formatted%` | Formatted current amount |
-| `%onemillioncrops_crop_<crop>_target%` | Target for the crop |
-| `%onemillioncrops_crop_<crop>_target_formatted%` | Formatted crop target |
-| `%onemillioncrops_crop_<crop>_remaining%` | Remaining amount |
-| `%onemillioncrops_crop_<crop>_remaining_formatted%` | Formatted remaining amount |
-| `%onemillioncrops_crop_<crop>_percent%` | Completion percentage with two decimal places |
-| `%onemillioncrops_crop_<crop>_completed%` | `true` when the crop is complete |
-| `%onemillioncrops_crop_<crop>_player_amount%` | Viewing player's contribution to the crop |
-| `%onemillioncrops_crop_<crop>_player_amount_formatted%` | Formatted player crop contribution |
-
-Player placeholders return `0` when the calling plugin does not provide player context. Unknown crop IDs and statistics remain unresolved, making configuration typos visible.
+Numeric placeholders also have `_formatted` variants with thousands separators. Replace `<crop>` with an ID from `crops.yml`, such as `wheat` or `nether_wart`.
 
 ## Live web dashboard
 
-The plugin serves a responsive React dashboard from the same JAR. It includes live totals, completion and velocity metrics, a session momentum graph, per-crop ranking graph, every crop objective, the contributor leaderboard, online player count, and a recent pickup feed. Updates arrive over Server-Sent Events without refreshing the page.
-
-The dashboard is read-only: it has no reset, command, database, or server-control endpoint. By default it listens at `http://127.0.0.1:8765`, which is only reachable from the Minecraft host. Use `/1mill web` to print the configured address.
-
-To expose it directly on a trusted LAN, set `web.bind-address: 0.0.0.0` and allow the configured port through the host firewall. For a public server, keep the localhost binding and put an HTTPS reverse proxy in front of it, then set `web.public-url` to the external address. `/1mill reload` restarts the listener when web settings change.
-
-Useful endpoints:
+The same plugin JAR serves a responsive, read-only React dashboard. Updates arrive over Server-Sent Events without refreshing the page.
 
 | Endpoint | Purpose |
 |---|---|
@@ -123,40 +135,23 @@ Useful endpoints:
 | `/api/v1/events` | Live Server-Sent Events stream |
 | `/health` | Lightweight health check |
 
-## Configuration
+The listener defaults to `127.0.0.1:8765`. For public access, keep the localhost binding, place an HTTPS reverse proxy in front of it, and configure `web.public-url`. The dashboard exposes no reset, command, database, or server-control endpoint.
 
-- `config.yml` controls the target, participant policy, automation, scoreboard timing and title animation, web listener, autosaves, and celebrations.
-- `crops.yml` controls enabled crops, counted item materials, harvest source blocks, and MiniMessage display names. Operators can also change each `enabled` value live with `/1mill crops`; disabled crop progress is preserved.
-- `messages.yml` contains all announcements, titles, and command messages in MiniMessage format.
-- `progress.db` contains shared totals, individual contributions, completion state, and queued celebrations.
-- `backups/` contains automatic pre-reset backups and backups created with `/1mill backup`.
+## Build from source
 
-The included catalogue contains wheat, carrots, potatoes, beetroot, nether wart, pumpkins, melon slices, sugar cane, cactus, cocoa beans, bamboo, kelp, sweet berries, glow berries, chorus fruit, and both mushroom types.
+```bash
+git clone https://github.com/MineWing/one-million-crops.git
+cd one-million-crops
+cd web && npm ci && npm run build && cd ..
+mvn package
+```
 
-The default scoreboard title accepts a multi-stop MiniMessage gradient, then renders each visible character with a directly calculated color at 20 frames per second. The cyclic palette includes a blended transition from the final blue back to the first red, without relying on MiniMessage gradient phases at runtime.
+Node.js 22+ is only required when changing the React frontend. The compiled dashboard is checked into `src/main/resources/web`, so a Java-only `mvn package` includes the latest committed web assets.
 
-## Harvest summary actions
+The test suite covers target clamping, milestone transitions, contribution tracking, resets, storage wands, planting, database transactions, placeholder values, action parsing, and JSON safety.
 
-Every configurable output in `messages.yml` has an `enabled` switch and an ordered `actions` list. The harvest summary additionally has its interval in minutes at `harvestSummary.amount`. Summary actions containing `%player%`, `%amount%`, or `%amount-display%` run once per leaderboard row; `%amount-display%` includes the configured visual treatment when the player beats their persisted personal best for a non-zero summary window. `%total%` and `%minutes%` are available to every summary action. `harvest-summary-countdown` accepts a `[countdown] <MiniMessage title> | <color> | <overlay>` action, where `%time%` is updated once per second. Placeholders always use `%name%`, while angle brackets are reserved for MiniMessage tags.
+---
 
-| Action | Syntax and defaults |
-|---|---|
-| `[message]` | `[message] <text>` sends a chat line to every online player. A blank value creates a spacer line. |
-| `[broadcast]` | `[broadcast] <text>` broadcasts a chat line to the whole server audience. |
-| `[sound]` | `[sound] SOUND [volume] [pitch]`; volume defaults to `0.7` and pitch to `1.2`. |
-| `[bossbar]` | `[bossbar] text \| seconds \| color \| overlay \| progress`; defaults: `5`, `GREEN`, `PROGRESS`, `1.0`. |
-| `[title]` | `[title] title \| subtitle \| fade-in ticks \| stay ticks \| fade-out ticks`; timing defaults to `10, 60, 10`. |
-| `[actionbar]` | `[actionbar] <text>` sends a MiniMessage action bar. |
-| `[lightning]` | `[lightning]` shows a visual-only lightning strike at every online player. |
-| `[particles]` | `[particles] TYPE [amount] [x] [y] [z] [speed]`; defaults to `HAPPY_VILLAGER 20 0.6 0.8 0.6 0.05`. |
-| `[firework]` | `[firework] hex-colors \| type \| power \| count \| gap-ticks`; for example `[firework] #55FF55,#FFD54A | BALL_LARGE | 1 | 3 | 10`. |
-
-Run `/1mill reload` after editing the section. Reloading also reschedules the summary with the new interval; setting `enabled: false` cancels it.
-
-## Celebration behaviour
-
-At 25%, 50%, 75%, and 90%, participating online players receive a sound, particles, and an action-bar announcement. At one million, the completion is persisted before it can trigger again and the server receives the full title, sound, broadcast, and firework sequence. Contributors who are offline receive their crop celebration after their next login. Completing every enabled crop triggers a separate grand finale.
-
-## Verification
-
-The project includes unit tests for target clamping, milestone transitions, contribution tracking, resets, database transactions, and JSON safety. It has also been started and stopped successfully on Paper `1.21.11-132` with the generated database and administrative commands exercised.
+<p align="center">
+  Built by <a href="https://github.com/MineWing">MineWing</a> · See also <a href="https://github.com/MineWing/Rivet">Rivet</a> and <a href="https://github.com/MineWing/EveryBlock">EveryBlock</a>
+</p>

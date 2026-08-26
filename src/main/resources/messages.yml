@@ -4,6 +4,69 @@
 message-palette-version: 1
 prefix: '<#8CE99A><bold>CROPS</bold></#8CE99A> <dark_gray>›</dark_gray>'
 
+# GUI and wand lore supports either a YAML list (recommended) or a legacy
+# single string. Blank list entries create spacing between sections.
+gui:
+  navigation:
+    previous:
+      - '<dark_gray>│</dark_gray> <yellow>Left-click</yellow> <gray>to view the previous page.</gray>'
+    next:
+      - '<dark_gray>│</dark_gray> <yellow>Left-click</yellow> <gray>to view the next page.</gray>'
+    close:
+      - '<dark_gray>│</dark_gray> <red>Left-click</red> <gray>to close this menu.</gray>'
+  crop-toggle:
+    crop:
+      - ''
+      - '%status%'
+      - ''
+      - '<dark_gray>│</dark_gray> <yellow>Left-click</yellow> <gray>to %action% this crop.</gray>'
+      - '<dark_gray>│ Progress is preserved while disabled.</dark_gray>'
+    summary:
+      - ''
+      - '<dark_gray>│</dark_gray> <gray>Enabled:</gray> <green><bold>%enabled%</bold></green><gray>/%configured%</gray>'
+      - '<dark_gray>│ At least one crop must remain enabled.</dark_gray>'
+  progress:
+    crop:
+      - ''
+      - '%bar%'
+      - '<dark_gray>│</dark_gray> <gray>Collected:</gray> <white><bold>%amount%</bold> / %target%</white>'
+      - '<dark_gray>│</dark_gray> <gray>Complete:</gray> <white>%percent%%</white>'
+      - '<dark_gray>│</dark_gray> <gray>Remaining:</gray> <white>%remaining%</white>'
+      - ''
+      - '<dark_gray>│</dark_gray> <aqua>Your contribution:</aqua> <white>%contribution%</white>'
+      - '%status%'
+    overall:
+      - ''
+      - '%bar%'
+      - '<dark_gray>│</dark_gray> <gray>Overall:</gray> <white>%percent%%</white>'
+      - '<dark_gray>│</dark_gray> <gray>Crops complete:</gray> <white>%completed%/%total%</white>'
+  crop-wand:
+    lore:
+      - '<gray>Manage eligible crops stored in a container.</gray>'
+      - ''
+      - '<dark_gray>│</dark_gray> <#8CE99A>Left-click</#8CE99A> <gray>to inspect stored crops.</gray>'
+      - '<dark_gray>│</dark_gray> <#8CE99A>Right-click</#8CE99A> <gray>to deposit eligible crops.</gray>'
+      - '<dark_gray>│</dark_gray> <#8CE99A>Shift-right-click</#8CE99A> <gray>to deposit and clear seeds.</gray>'
+      - ''
+      - '<dark_gray>│ Unmarked and blocked items are ignored.</dark_gray>'
+  plant-wand:
+    wand:
+      - '<gray>Select farmland and plant it from your inventory.</gray>'
+      - ''
+      - '<dark_gray>│</dark_gray> <#8CE99A>Left-click</#8CE99A> <gray>to select the first corner.</gray>'
+      - '<dark_gray>│</dark_gray> <#8CE99A>Right-click</#8CE99A> <gray>to select the second corner.</gray>'
+      - '<dark_gray>│ The crop menu opens after corner two.</dark_gray>'
+    crop-option:
+      - ''
+      - '<dark_gray>│</dark_gray> <gray>Empty farmland:</gray> <white>%farmland%</white>'
+      - '<dark_gray>│</dark_gray> <gray>Available:</gray> %available%'
+      - ''
+      - '<dark_gray>│</dark_gray> %action%'
+    menu-summary:
+      - '<gray>Choose what to plant below.</gray>'
+      - ''
+      - '<dark_gray>│ Up to %maximum% blocks per use.</dark_gray>'
+
 no-permission:
   enabled: true
   actions:

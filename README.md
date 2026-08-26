@@ -95,7 +95,7 @@ The plugin creates `config.yml`, `crops.yml`, `messages.yml`, `progress.db`, and
 |---|---|
 | `config.yml` | Target, participants, counting rules, scoreboard, web server, autosaves, and celebrations |
 | `crops.yml` | Enabled crops, item materials, harvest source blocks, and MiniMessage display names |
-| `messages.yml` | Ordered action lists for every player-facing event |
+| `messages.yml` | Ordered action lists plus configurable GUI and wand lore lists |
 | `progress.db` | Shared totals, contributions, completion state, and queued celebrations |
 | `backups/` | Manual and automatic pre-reset database backups |
 

@@ -77,14 +77,7 @@ public final class PlantWandListener implements Listener {
         ItemStack wand = new ItemStack(Material.WOODEN_HOE);
         ItemMeta meta = wand.getItemMeta();
         meta.displayName(plugin.text().parse("<gradient:#8CE99A:#FFD166><bold>Plant Wand</bold></gradient>"));
-        meta.lore(List.of(
-                Component.empty(),
-                plugin.text().parse("<white>Left-click</white> <gray>to select the first corner.</gray>"),
-                plugin.text().parse("<white>Right-click</white> <gray>to select the second corner.</gray>"),
-                plugin.text().parse("<#8CE99A>The crop menu opens after corner two.</#8CE99A>"),
-                Component.empty(),
-                plugin.text().parse("<dark_gray>Plants empty farmland using items in your inventory.</dark_gray>")
-        ));
+        meta.lore(lore("gui.plant-wand.wand", Map.of()));
         meta.setEnchantmentGlintOverride(true);
         meta.getPersistentDataContainer().set(wandKey, PersistentDataType.BYTE, (byte) 1);
         wand.setItemMeta(meta);
@@ -197,28 +190,26 @@ public final class PlantWandListener implements Listener {
         for (int index = 0; index < CROPS.size(); index++) {
             PlantableCrop crop = CROPS.get(index);
             int available = available(player, crop.seed());
-            List<Component> lore = List.of(
-                    Component.empty(),
-                    plugin.text().parse("<gray>Empty farmland: <white>" + Text.number(farmland.size()) + "</white>"),
-                    plugin.text().parse(player.getGameMode() == GameMode.CREATIVE
-                            ? "<gray>Available: <light_purple>Unlimited</light_purple>"
-                            : "<gray>Available: <white>" + Text.number(available) + "</white>"),
-                    Component.empty(),
-                    plugin.text().parse(available > 0
-                            ? "<#8CE99A><bold>CLICK TO PLANT</bold></#8CE99A>"
-                            : "<red>You do not have this crop.</red>")
-            );
-            ItemStack option = item(crop.seed(), crop.display(), lore);
+            String availableText = player.getGameMode() == GameMode.CREATIVE
+                    ? "<light_purple>Unlimited</light_purple>"
+                    : "<white>" + Text.number(available) + "</white>";
+            String action = available > 0
+                    ? "<#8CE99A>Left-click</#8CE99A> <gray>to plant this crop.</gray>"
+                    : "<red>You do not have this crop.</red>";
+            ItemStack option = item(crop.seed(), crop.display(), lore("gui.plant-wand.crop-option", Map.of(
+                    "farmland", Text.number(farmland.size()),
+                    "available", availableText,
+                    "action", action
+            )));
             ItemMeta meta = option.getItemMeta();
             meta.getPersistentDataContainer().set(cropKey, PersistentDataType.STRING, crop.id());
             option.setItemMeta(meta);
             inventory.setItem(CROP_SLOTS[index], option);
         }
         inventory.setItem(4, item(Material.GOLDEN_HOE, "<#8CE99A><bold>" + Text.number(farmland.size())
-                + " Empty Farmland</bold></#8CE99A>", List.of(
-                plugin.text().parse("<gray>Choose what to plant below.</gray>"),
-                plugin.text().parse("<dark_gray>Up to " + Text.number(MAX_PLANTS_PER_USE) + " blocks per use.</dark_gray>")
-        )));
+                + " Empty Farmland</bold></#8CE99A>", lore("gui.plant-wand.menu-summary", Map.of(
+                "maximum", Text.number(MAX_PLANTS_PER_USE)
+        ))));
         player.openInventory(inventory);
         player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 0.65f, 1.35f);
     }
@@ -397,6 +388,12 @@ public final class PlantWandListener implements Listener {
         }
         item.setItemMeta(meta);
         return item;
+    }
+
+    private List<Component> lore(String key, Map<String, String> replacements) {
+        return plugin.configManager().lore(key, replacements).stream()
+                .map(plugin.text()::parse)
+                .toList();
     }
 
     static PlantableCrop crop(String id) {

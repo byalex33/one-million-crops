@@ -27,13 +27,37 @@ final class MessagesConfigurationTest {
                 new InputStreamReader(resource, StandardCharsets.UTF_8));
 
         for (String key : yaml.getKeys(false)) {
-            if (key.equals("prefix") || key.equals(ConfigManager.MESSAGE_PALETTE_VERSION_KEY)) {
+            if (key.equals("prefix") || key.equals("gui")
+                    || key.equals(ConfigManager.MESSAGE_PALETTE_VERSION_KEY)) {
                 continue;
             }
             var section = yaml.getConfigurationSection(key);
             assertNotNull(section, key + " must be an action section");
             assertTrue(section.isBoolean("enabled"), key + " must have an enabled switch");
             assertFalse(section.getStringList("actions").isEmpty(), key + " must have actions");
+        }
+    }
+
+    @Test
+    void loreSupportsListsAndLegacyScalarValues() {
+        assertEquals(List.of("line one", "", "line three"),
+                ConfigManager.configuredLines(List.of("line one", "", "line three")));
+        assertEquals(List.of("old line"), ConfigManager.configuredLines("old line"));
+        assertEquals(List.of(), ConfigManager.configuredLines(""));
+    }
+
+    @Test
+    void bundledGuiLoreUsesYamlLists() {
+        var resource = Objects.requireNonNull(getClass().getResourceAsStream("/messages.yml"));
+        var yaml = YamlConfiguration.loadConfiguration(
+                new InputStreamReader(resource, StandardCharsets.UTF_8));
+
+        for (String path : List.of(
+                "gui.navigation.previous", "gui.navigation.next", "gui.navigation.close",
+                "gui.crop-toggle.crop", "gui.crop-toggle.summary", "gui.progress.crop",
+                "gui.progress.overall", "gui.crop-wand.lore", "gui.plant-wand.wand",
+                "gui.plant-wand.crop-option", "gui.plant-wand.menu-summary")) {
+            assertTrue(yaml.isList(path), path + " must be a YAML lore list");
         }
     }
 

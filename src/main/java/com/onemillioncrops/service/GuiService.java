@@ -19,6 +19,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public final class GuiService {
     private static final int[] CROP_SLOTS = {
@@ -75,13 +76,16 @@ public final class GuiService {
             inventory.setItem(CROP_SLOTS[index - start], cropItem(player, crops.get(index)));
         }
         if (page > 0) {
-            inventory.setItem(45, simpleItem(Material.ARROW, "<yellow><bold>Previous Page</bold>"));
+            inventory.setItem(45, simpleItem(Material.ARROW, "<yellow><bold>Previous Page</bold>",
+                    "gui.navigation.previous"));
         }
         if (page + 1 < pages) {
-            inventory.setItem(53, simpleItem(Material.ARROW, "<yellow><bold>Next Page</bold>"));
+            inventory.setItem(53, simpleItem(Material.ARROW, "<yellow><bold>Next Page</bold>",
+                    "gui.navigation.next"));
         }
         inventory.setItem(49, overallItem());
-        inventory.setItem(48, simpleItem(Material.BARRIER, "<red><bold>Close</bold>"));
+        inventory.setItem(48, simpleItem(Material.BARRIER, "<red><bold>Close</bold>",
+                "gui.navigation.close"));
         animateBorder(inventory);
         player.openInventory(inventory);
         player.playSound(player.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, 0.6f, 1.4f);
@@ -111,12 +115,15 @@ public final class GuiService {
 
         populateCropToggles(inventory, crops, page);
         if (page > 0) {
-            inventory.setItem(45, simpleItem(Material.ARROW, "<yellow><bold>Previous Page</bold>"));
+            inventory.setItem(45, simpleItem(Material.ARROW, "<yellow><bold>Previous Page</bold>",
+                    "gui.navigation.previous"));
         }
         if (page + 1 < pages) {
-            inventory.setItem(53, simpleItem(Material.ARROW, "<yellow><bold>Next Page</bold>"));
+            inventory.setItem(53, simpleItem(Material.ARROW, "<yellow><bold>Next Page</bold>",
+                    "gui.navigation.next"));
         }
-        inventory.setItem(48, simpleItem(Material.BARRIER, "<red><bold>Close</bold>"));
+        inventory.setItem(48, simpleItem(Material.BARRIER, "<red><bold>Close</bold>",
+                "gui.navigation.close"));
         inventory.setItem(49, toggleSummaryItem());
         animateBorder(inventory);
         player.openInventory(inventory);
@@ -203,17 +210,12 @@ public final class GuiService {
         ItemStack stack = new ItemStack(crop.item());
         ItemMeta meta = stack.getItemMeta();
         meta.displayName(plugin.text().parse(crop.displayMiniMessage()));
-        meta.lore(List.of(
-                Component.empty(),
-                plugin.text().parse(enabled
+        meta.lore(lore("gui.crop-toggle.crop", Map.of(
+                "status", enabled
                         ? "<green><bold>✔ ENABLED</bold></green>"
-                        : "<red><bold>✘ DISABLED</bold></red>"),
-                Component.empty(),
-                plugin.text().parse(enabled
-                        ? "<yellow>Click to stop counting this crop.</yellow>"
-                        : "<yellow>Click to start counting this crop.</yellow>"),
-                plugin.text().parse("<dark_gray>Progress is preserved while disabled.</dark_gray>")
-        ));
+                        : "<red><bold>✘ DISABLED</bold></red>",
+                "action", enabled ? "stop counting" : "start counting"
+        )));
         if (enabled) {
             meta.addEnchant(Enchantment.UNBREAKING, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -228,11 +230,10 @@ public final class GuiService {
         ItemStack item = simpleItem(Material.COMPARATOR,
                 "<gradient:#55ff55:#ffd54a><bold>Crop Controls</bold></gradient>");
         ItemMeta meta = item.getItemMeta();
-        meta.lore(List.of(
-                Component.empty(),
-                plugin.text().parse("<gray>Enabled: <green><bold>" + enabled + "</bold></green><gray>/" + configured + "</gray>"),
-                plugin.text().parse("<dark_gray>At least one crop must remain enabled.</dark_gray>")
-        ));
+        meta.lore(lore("gui.crop-toggle.summary", Map.of(
+                "enabled", Integer.toString(enabled),
+                "configured", Integer.toString(configured)
+        )));
         item.setItemMeta(meta);
         return item;
     }
@@ -254,18 +255,17 @@ public final class GuiService {
         ItemStack stack = new ItemStack(crop.item());
         ItemMeta meta = stack.getItemMeta();
         meta.displayName(plugin.text().parse(crop.displayMiniMessage()));
-        List<Component> lore = new ArrayList<>();
-        lore.add(Component.empty());
-        lore.add(plugin.text().parse(Text.progressBar(amount, target, 20)));
-        lore.add(plugin.text().parse("<white><bold>" + Text.number(amount) + "</bold></white><gray> / " + Text.number(target) + "</gray>"));
-        lore.add(plugin.text().parse("<gray>Complete: <white>" + Text.percent(amount, target) + "%</white>"));
-        lore.add(plugin.text().parse("<gray>Remaining: <white>" + Text.number(Math.max(0, target - amount)) + "</white>"));
-        lore.add(Component.empty());
-        lore.add(plugin.text().parse("<aqua>Your contribution: <white>" + Text.number(own) + "</white>"));
-        lore.add(plugin.text().parse(done
-                ? "<gradient:#55ff55:#ffd54a><bold>✦ CHALLENGE COMPLETE ✦</bold></gradient>"
-                : "<dark_gray>Every collected item counts as one.</dark_gray>"));
-        meta.lore(lore);
+        meta.lore(lore("gui.progress.crop", Map.of(
+                "bar", Text.progressBar(amount, target, 20),
+                "amount", Text.number(amount),
+                "target", Text.number(target),
+                "percent", Text.percent(amount, target),
+                "remaining", Text.number(Math.max(0, target - amount)),
+                "contribution", Text.number(own),
+                "status", done
+                        ? "<gradient:#55ff55:#ffd54a><bold>✦ CHALLENGE COMPLETE ✦</bold></gradient>"
+                        : "<dark_gray>│ Every collected item counts as one.</dark_gray>"
+        )));
         if (done) {
             meta.addEnchant(Enchantment.UNBREAKING, 1, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -282,12 +282,12 @@ public final class GuiService {
                 .reduce(0L, GuiService::saturatingAdd);
         ItemStack item = simpleItem(Material.NETHER_STAR, "<gradient:#55ff55:#ffd54a><bold>Team Progress</bold></gradient>");
         ItemMeta meta = item.getItemMeta();
-        meta.lore(List.of(
-                Component.empty(),
-                plugin.text().parse(Text.progressBar(amount, target, 20)),
-                plugin.text().parse("<gray>Overall: <white>" + Text.percent(amount, target) + "%</white>"),
-                plugin.text().parse("<gray>Crops complete: <white>" + completed + "/" + totalCrops + "</white>")
-        ));
+        meta.lore(lore("gui.progress.overall", Map.of(
+                "bar", Text.progressBar(amount, target, 20),
+                "percent", Text.percent(amount, target),
+                "completed", Integer.toString(completed),
+                "total", Integer.toString(totalCrops)
+        )));
         item.setItemMeta(meta);
         return item;
     }
@@ -298,6 +298,20 @@ public final class GuiService {
         meta.displayName(plugin.text().parse(name));
         item.setItemMeta(meta);
         return item;
+    }
+
+    private ItemStack simpleItem(Material material, String name, String loreKey) {
+        ItemStack item = simpleItem(material, name);
+        ItemMeta meta = item.getItemMeta();
+        meta.lore(lore(loreKey, Map.of()));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    private List<Component> lore(String key, Map<String, String> replacements) {
+        return plugin.configManager().lore(key, replacements).stream()
+                .map(plugin.text()::parse)
+                .toList();
     }
 
     private void animateBorder(Inventory inventory) {

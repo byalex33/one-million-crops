@@ -566,6 +566,38 @@ public final class ConfigManager {
         return messages.getString(key, "<red>Missing message: " + key);
     }
 
+    /**
+     * Reads configurable lore as a YAML list. A scalar string is also accepted
+     * so an older messages.yml does not break when the plugin is updated.
+     */
+    public List<String> lore(String key, Map<String, String> replacements) {
+        return configuredLines(messages.get(key)).stream()
+                .map(line -> replacePlaceholders(line, replacements))
+                .toList();
+    }
+
+    public List<String> lore(String key) {
+        return lore(key, Map.of());
+    }
+
+    static List<String> configuredLines(Object configured) {
+        if (configured instanceof String line) {
+            return line.isEmpty() ? List.of() : List.of(line);
+        }
+        if (!(configured instanceof List<?> list)) {
+            return List.of();
+        }
+        return list.stream().map(String::valueOf).toList();
+    }
+
+    private static String replacePlaceholders(String line, Map<String, String> replacements) {
+        String rendered = line;
+        for (Map.Entry<String, String> replacement : replacements.entrySet()) {
+            rendered = rendered.replace("%" + replacement.getKey() + "%", replacement.getValue());
+        }
+        return rendered;
+    }
+
     public ActionSettings action(String key) {
         return new ActionSettings(
                 messages.getBoolean(key + ".enabled", true),

@@ -45,12 +45,9 @@ public final class CropWandListener implements Listener {
         ItemStack wand = new ItemStack(Material.BLAZE_ROD);
         ItemMeta meta = wand.getItemMeta();
         meta.displayName(plugin.text().parse("<#8CE99A><bold>Crop Wand</bold></#8CE99A>"));
-        meta.lore(List.of(
-                plugin.text().parse("<white>Left-click</white> <gray>to inspect crops.</gray>"),
-                plugin.text().parse("<white>Right-click</white> <gray>to deposit eligible crops.</gray>"),
-                plugin.text().parse("<#8CE99A>Shift-right-click</#8CE99A> <gray>to also clear seeds.</gray>"),
-                plugin.text().parse("<dark_gray>Unmarked and blocked items are ignored.</dark_gray>")
-        ));
+        meta.lore(plugin.configManager().lore("gui.crop-wand.lore").stream()
+                .map(plugin.text()::parse)
+                .toList());
         meta.setEnchantmentGlintOverride(true);
         meta.getPersistentDataContainer().set(wandKey, PersistentDataType.BYTE, (byte) 1);
         wand.setItemMeta(meta);

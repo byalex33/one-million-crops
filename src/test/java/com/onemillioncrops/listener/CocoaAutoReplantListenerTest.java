@@ -25,6 +25,13 @@ class CocoaAutoReplantListenerTest {
     }
 
     @Test
+    void recognisesThatCocoaFacesBackTowardItsSupportingLog() {
+        assertTrue(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.NORTH, BlockFace.SOUTH));
+        assertTrue(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.WEST, BlockFace.EAST));
+        assertFalse(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.NORTH, BlockFace.NORTH));
+    }
+
+    @Test
     void chargesExactlyOneBeanForReplanting() {
         assertEquals(2, CocoaAutoReplantListener.remainingAfterReplantCost(Material.COCOA_BEANS, 3));
         assertEquals(0, CocoaAutoReplantListener.remainingAfterReplantCost(Material.COCOA_BEANS, 1));

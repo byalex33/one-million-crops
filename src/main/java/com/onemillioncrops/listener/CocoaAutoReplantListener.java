@@ -62,7 +62,8 @@ public final class CocoaAutoReplantListener implements Listener {
             }
             for (BlockFace side : SIDES) {
                 Block pod = support.getRelative(side);
-                if (!(pod.getBlockData() instanceof Cocoa cocoa) || cocoa.getFacing() != side) {
+                if (!(pod.getBlockData() instanceof Cocoa cocoa)
+                        || !isAttachedToSupport(cocoa.getFacing(), side)) {
                     continue;
                 }
 
@@ -118,7 +119,7 @@ public final class CocoaAutoReplantListener implements Listener {
         if (!target.isEmpty()) {
             return false;
         }
-        Block support = target.getRelative(seed.getFacing().getOppositeFace());
+        Block support = target.getRelative(seed.getFacing());
         if (!isJungleSupport(support.getType())) {
             return false;
         }
@@ -132,6 +133,10 @@ public final class CocoaAutoReplantListener implements Listener {
 
     static boolean isJungleSupport(Material material) {
         return material != null && JUNGLE_SUPPORTS.contains(material);
+    }
+
+    static boolean isAttachedToSupport(BlockFace cocoaFacing, BlockFace sideFromSupport) {
+        return cocoaFacing == sideFromSupport.getOppositeFace();
     }
 
     static int remainingAfterReplantCost(Material material, int amount) {

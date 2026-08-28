@@ -4,6 +4,7 @@ import com.onemillioncrops.command.MainCommand;
 import com.onemillioncrops.command.ProgressCommand;
 import com.onemillioncrops.config.ConfigManager;
 import com.onemillioncrops.data.ProgressDatabase;
+import com.onemillioncrops.listener.CocoaAutoReplantListener;
 import com.onemillioncrops.listener.CropPickupListener;
 import com.onemillioncrops.listener.CropWandListener;
 import com.onemillioncrops.listener.PlantWandListener;
@@ -87,6 +88,7 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
         celebrations = new CelebrationService(this);
         dashboard = new WebDashboardService(this);
 
+        getServer().getPluginManager().registerEvents(new CocoaAutoReplantListener(this), this);
         getServer().getPluginManager().registerEvents(new CropPickupListener(this), this);
         cropWand = new CropWandListener(this);
         getServer().getPluginManager().registerEvents(cropWand, this);

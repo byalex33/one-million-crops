@@ -40,6 +40,7 @@ The default rules support manual and automatic farms while preventing common rec
 
 - Picking up a stack adds the exact amount that entered the inventory.
 - Water- and piston-harvested drops retain their provenance through hoppers and storage.
+- Cocoa pods broken by moving their supporting jungle logs are replanted at age 0, consuming one bean from the drops.
 - Eligible crops in chests, barrels, hoppers, and shulker boxes can be inspected or deposited with the Crop Wand.
 - Crops deposited by a player are not made eligible again simply by withdrawing them.
 - Deliberately dropped items and dispenser/dropper outputs remain ineligible.

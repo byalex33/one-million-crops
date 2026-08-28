@@ -28,6 +28,7 @@ import java.util.UUID;
  * The replacement pod follows the log and is paid for by one bean from the block's drops.
  */
 public final class CocoaAutoReplantListener implements Listener {
+    private static final int REPLANT_ATTEMPTS = 20;
     private static final List<BlockFace> SIDES = List.of(
             BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST
     );
@@ -72,7 +73,8 @@ public final class CocoaAutoReplantListener implements Listener {
                 BlockPosition source = BlockPosition.of(pod);
                 ReplantPlan plan = new ReplantPlan(source, source.relative(movement), seed);
                 pending.put(source, plan);
-                Bukkit.getScheduler().runTaskLater(plugin, () -> pending.remove(source, plan), 2L);
+                Bukkit.getScheduler().runTaskLater(plugin,
+                        () -> pending.remove(source, plan), REPLANT_ATTEMPTS);
             }
         }
     }
@@ -100,17 +102,21 @@ public final class CocoaAutoReplantListener implements Listener {
             stack.setAmount(remaining);
             item.setItemStack(stack);
         }
-        Bukkit.getScheduler().runTask(plugin, () -> replant(plan));
+        Bukkit.getScheduler().runTask(plugin, () -> replant(plan, REPLANT_ATTEMPTS));
     }
 
-    private void replant(ReplantPlan plan) {
+    private void replant(ReplantPlan plan, int attemptsRemaining) {
         World world = Bukkit.getWorld(plan.source().worldId());
         if (world == null) {
             return;
         }
-        if (!replantAt(world, plan.target(), plan.seed())) {
-            // A short pulse can return the log before this task runs.
-            replantAt(world, plan.source(), plan.seed());
+        if (replantAt(world, plan.target(), plan.seed())
+                || replantAt(world, plan.source(), plan.seed())) {
+            return;
+        }
+        if (attemptsRemaining > 1) {
+            Bukkit.getScheduler().runTaskLater(plugin,
+                    () -> replant(plan, attemptsRemaining - 1), 1L);
         }
     }
 

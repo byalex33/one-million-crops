@@ -32,6 +32,13 @@ class CocoaAutoReplantListenerTest {
     }
 
     @Test
+    void recognisesPaperWaterBreakEventsForCocoa() {
+        assertTrue(CocoaAutoReplantListener.isWaterCocoaBreak(Material.WATER, Material.COCOA));
+        assertFalse(CocoaAutoReplantListener.isWaterCocoaBreak(Material.WATER, Material.WHEAT));
+        assertFalse(CocoaAutoReplantListener.isWaterCocoaBreak(Material.LAVA, Material.COCOA));
+    }
+
+    @Test
     void recognisesThatCocoaFacesBackTowardItsSupportingLog() {
         assertTrue(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.NORTH, BlockFace.SOUTH));
         assertTrue(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.WEST, BlockFace.EAST));

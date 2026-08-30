@@ -1,6 +1,7 @@
 package com.onemillioncrops.listener;
 
 import com.onemillioncrops.OneMillionCropsPlugin;
+import io.papermc.paper.event.block.BlockBreakBlockEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -11,7 +12,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
@@ -19,6 +19,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,19 +59,26 @@ public final class CocoaAutoReplantListener implements Listener {
         prepare(event.getBlocks(), pistonMovement(event.getDirection(), false));
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onWaterFlow(BlockFromToEvent event) {
-        if (!isWater(event.getBlock().getType())) {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onWaterBreak(BlockBreakBlockEvent event) {
+        if (!isWaterCocoaBreak(event.getSource().getType(), event.getBlock().getType())) {
             return;
         }
 
-        Block pod = event.getToBlock();
+        Block pod = event.getBlock();
         if (!(pod.getBlockData() instanceof Cocoa cocoa)
                 || !isJungleSupport(pod.getRelative(cocoa.getFacing()).getType())) {
             return;
         }
+        if (!consumeReplantBean(event.getDrops())) {
+            return;
+        }
 
-        prepare(pod, BlockPosition.of(pod), cocoa);
+        Cocoa seed = (Cocoa) cocoa.clone();
+        seed.setAge(0);
+        BlockPosition source = BlockPosition.of(pod);
+        ReplantPlan plan = new ReplantPlan(source, source, seed);
+        Bukkit.getScheduler().runTask(plugin, () -> replant(plan, REPLANT_ATTEMPTS));
     }
 
     private void prepare(List<Block> movedBlocks, BlockFace movement) {
@@ -165,6 +173,27 @@ public final class CocoaAutoReplantListener implements Listener {
 
     static boolean isWater(Material material) {
         return material == Material.WATER;
+    }
+
+    static boolean isWaterCocoaBreak(Material source, Material broken) {
+        return isWater(source) && broken == Material.COCOA;
+    }
+
+    static boolean consumeReplantBean(List<ItemStack> drops) {
+        Iterator<ItemStack> iterator = drops.iterator();
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
+            if (stack.getType() != Material.COCOA_BEANS || stack.getAmount() <= 0) {
+                continue;
+            }
+            if (stack.getAmount() == 1) {
+                iterator.remove();
+            } else {
+                stack.setAmount(stack.getAmount() - 1);
+            }
+            return true;
+        }
+        return false;
     }
 
     static boolean isAttachedToSupport(BlockFace cocoaFacing, BlockFace sideFromSupport) {

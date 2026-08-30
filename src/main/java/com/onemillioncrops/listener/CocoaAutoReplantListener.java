@@ -31,7 +31,10 @@ import java.util.UUID;
  */
 public final class CocoaAutoReplantListener implements Listener {
     private static final int PENDING_DROP_TICKS = 20;
-    private static final int REPLANT_ATTEMPTS = 100;
+    private static final int PISTON_REPLANT_ATTEMPTS = 100;
+    private static final long PISTON_RETRY_TICKS = 1L;
+    private static final int WATER_REPLANT_ATTEMPTS = 300;
+    private static final long WATER_RETRY_TICKS = 20L;
     private static final List<BlockFace> SIDES = List.of(
             BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST
     );
@@ -78,7 +81,8 @@ public final class CocoaAutoReplantListener implements Listener {
         seed.setAge(0);
         BlockPosition source = BlockPosition.of(pod);
         ReplantPlan plan = new ReplantPlan(source, source, seed);
-        Bukkit.getScheduler().runTask(plugin, () -> replant(plan, REPLANT_ATTEMPTS));
+        Bukkit.getScheduler().runTask(plugin,
+                () -> replant(plan, WATER_REPLANT_ATTEMPTS, WATER_RETRY_TICKS));
     }
 
     private void prepare(List<Block> movedBlocks, BlockFace movement) {
@@ -132,10 +136,11 @@ public final class CocoaAutoReplantListener implements Listener {
             stack.setAmount(remaining);
             item.setItemStack(stack);
         }
-        Bukkit.getScheduler().runTask(plugin, () -> replant(plan, REPLANT_ATTEMPTS));
+        Bukkit.getScheduler().runTask(plugin,
+                () -> replant(plan, PISTON_REPLANT_ATTEMPTS, PISTON_RETRY_TICKS));
     }
 
-    private void replant(ReplantPlan plan, int attemptsRemaining) {
+    private void replant(ReplantPlan plan, int attemptsRemaining, long retryTicks) {
         World world = Bukkit.getWorld(plan.source().worldId());
         if (world == null) {
             return;
@@ -146,7 +151,7 @@ public final class CocoaAutoReplantListener implements Listener {
         }
         if (attemptsRemaining > 1) {
             Bukkit.getScheduler().runTaskLater(plugin,
-                    () -> replant(plan, attemptsRemaining - 1), 1L);
+                    () -> replant(plan, attemptsRemaining - 1, retryTicks), retryTicks);
         }
     }
 
@@ -177,6 +182,10 @@ public final class CocoaAutoReplantListener implements Listener {
 
     static boolean isWaterCocoaBreak(Material source, Material broken) {
         return isWater(source) && broken == Material.COCOA;
+    }
+
+    static long waterReplantWindowTicks() {
+        return WATER_REPLANT_ATTEMPTS * WATER_RETRY_TICKS;
     }
 
     static boolean consumeReplantBean(List<ItemStack> drops) {

@@ -39,6 +39,11 @@ class CocoaAutoReplantListenerTest {
     }
 
     @Test
+    void waitsFiveMinutesForAFlowingWaterWallToDrain() {
+        assertEquals(6_000L, CocoaAutoReplantListener.waterReplantWindowTicks());
+    }
+
+    @Test
     void recognisesThatCocoaFacesBackTowardItsSupportingLog() {
         assertTrue(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.NORTH, BlockFace.SOUTH));
         assertTrue(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.WEST, BlockFace.EAST));

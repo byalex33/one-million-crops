@@ -11,6 +11,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
@@ -24,11 +25,12 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Replants cocoa pods broken when their supporting jungle logs are moved by a piston.
- * The replacement pod follows the log and is paid for by one bean from the block's drops.
+ * Replants cocoa pods broken by water or by moving their supporting jungle logs with a piston.
+ * The replacement pod is paid for by one bean from the block's drops.
  */
 public final class CocoaAutoReplantListener implements Listener {
-    private static final int REPLANT_ATTEMPTS = 20;
+    private static final int PENDING_DROP_TICKS = 20;
+    private static final int REPLANT_ATTEMPTS = 100;
     private static final List<BlockFace> SIDES = List.of(
             BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST
     );
@@ -56,6 +58,21 @@ public final class CocoaAutoReplantListener implements Listener {
         prepare(event.getBlocks(), pistonMovement(event.getDirection(), false));
     }
 
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onWaterFlow(BlockFromToEvent event) {
+        if (!isWater(event.getBlock().getType())) {
+            return;
+        }
+
+        Block pod = event.getToBlock();
+        if (!(pod.getBlockData() instanceof Cocoa cocoa)
+                || !isJungleSupport(pod.getRelative(cocoa.getFacing()).getType())) {
+            return;
+        }
+
+        prepare(pod, BlockPosition.of(pod), cocoa);
+    }
+
     private void prepare(List<Block> movedBlocks, BlockFace movement) {
         for (Block support : movedBlocks) {
             if (!isJungleSupport(support.getType())) {
@@ -68,15 +85,20 @@ public final class CocoaAutoReplantListener implements Listener {
                     continue;
                 }
 
-                Cocoa seed = (Cocoa) cocoa.clone();
-                seed.setAge(0);
                 BlockPosition source = BlockPosition.of(pod);
-                ReplantPlan plan = new ReplantPlan(source, source.relative(movement), seed);
-                pending.put(source, plan);
-                Bukkit.getScheduler().runTaskLater(plugin,
-                        () -> pending.remove(source, plan), REPLANT_ATTEMPTS);
+                prepare(pod, source.relative(movement), cocoa);
             }
         }
+    }
+
+    private void prepare(Block pod, BlockPosition target, Cocoa cocoa) {
+        Cocoa seed = (Cocoa) cocoa.clone();
+        seed.setAge(0);
+        BlockPosition source = BlockPosition.of(pod);
+        ReplantPlan plan = new ReplantPlan(source, target, seed);
+        pending.put(source, plan);
+        Bukkit.getScheduler().runTaskLater(plugin,
+                () -> pending.remove(source, plan), PENDING_DROP_TICKS);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -139,6 +161,10 @@ public final class CocoaAutoReplantListener implements Listener {
 
     static boolean isJungleSupport(Material material) {
         return material != null && JUNGLE_SUPPORTS.contains(material);
+    }
+
+    static boolean isWater(Material material) {
+        return material == Material.WATER;
     }
 
     static boolean isAttachedToSupport(BlockFace cocoaFacing, BlockFace sideFromSupport) {

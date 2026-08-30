@@ -25,6 +25,13 @@ class CocoaAutoReplantListenerTest {
     }
 
     @Test
+    void preparesAutomaticHarvestsOnlyForWaterFlow() {
+        assertTrue(CocoaAutoReplantListener.isWater(Material.WATER));
+        assertFalse(CocoaAutoReplantListener.isWater(Material.LAVA));
+        assertFalse(CocoaAutoReplantListener.isWater(Material.AIR));
+    }
+
+    @Test
     void recognisesThatCocoaFacesBackTowardItsSupportingLog() {
         assertTrue(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.NORTH, BlockFace.SOUTH));
         assertTrue(CocoaAutoReplantListener.isAttachedToSupport(BlockFace.WEST, BlockFace.EAST));

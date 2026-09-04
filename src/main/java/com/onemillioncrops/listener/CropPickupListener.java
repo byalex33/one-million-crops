@@ -3,8 +3,10 @@ package com.onemillioncrops.listener;
 import com.onemillioncrops.OneMillionCropsPlugin;
 import com.onemillioncrops.model.CropDefinition;
 import com.onemillioncrops.service.PlacedSourceTracker;
+import io.papermc.paper.event.block.BlockBreakBlockEvent;
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -34,6 +36,9 @@ import org.bukkit.event.player.PlayerHarvestBlockEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+
+import java.util.Iterator;
+import java.util.List;
 
 public final class CropPickupListener implements Listener {
     private final OneMillionCropsPlugin plugin;
@@ -65,6 +70,46 @@ public final class CropPickupListener implements Listener {
                 markBlocked(item);
             }
         }
+    }
+
+    /**
+     * Flowing water can knock a mature crop loose without a player ever touching it.
+     * Cocoa handles its own water break in {@link CocoaAutoReplantListener} because it also
+     * has to pay a bean to replant itself; every other crop just gets credited here instead
+     * of waiting for someone to walk over and collect the drops.
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onWaterHarvest(BlockBreakBlockEvent event) {
+        Block block = event.getBlock();
+        if (block.getType() == Material.COCOA
+                || !CocoaAutoReplantListener.isWater(event.getSource().getType())
+                || !plugin.configManager().settings().allowAutomatedFarms()) {
+            return;
+        }
+        CropDefinition crop = plugin.configManager().cropBySource(block.getState());
+        if (crop == null) {
+            return;
+        }
+        if (placedSources.consume(block) && plugin.configManager().settings().blockPlayerRedrops()) {
+            return;
+        }
+        int amount = takeMatching(event.getDrops(), crop.item());
+        if (amount > 0) {
+            plugin.recordAutomatedPickup(crop, amount);
+        }
+    }
+
+    private static int takeMatching(List<ItemStack> drops, Material item) {
+        int total = 0;
+        Iterator<ItemStack> iterator = drops.iterator();
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
+            if (stack.getType() == item) {
+                total += stack.getAmount();
+                iterator.remove();
+            }
+        }
+        return total;
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

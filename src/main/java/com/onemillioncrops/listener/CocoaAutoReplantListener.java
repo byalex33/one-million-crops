@@ -1,6 +1,7 @@
 package com.onemillioncrops.listener;
 
 import com.onemillioncrops.OneMillionCropsPlugin;
+import com.onemillioncrops.model.CropDefinition;
 import io.papermc.paper.event.block.BlockBreakBlockEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -76,6 +77,7 @@ public final class CocoaAutoReplantListener implements Listener {
         if (!consumeReplantBean(event.getDrops())) {
             return;
         }
+        creditHarvestedBeans(event.getDrops());
 
         Cocoa seed = (Cocoa) cocoa.clone();
         seed.setAge(0);
@@ -83,6 +85,25 @@ public final class CocoaAutoReplantListener implements Listener {
         ReplantPlan plan = new ReplantPlan(source, source, seed);
         Bukkit.getScheduler().runTask(plugin,
                 () -> replant(plan, WATER_REPLANT_ATTEMPTS, WATER_RETRY_TICKS));
+    }
+
+    /**
+     * Water-harvested beans have no player to credit, so they count straight toward
+     * the shared total (like a hopper farm's output would) instead of waiting on
+     * someone to walk over and collect them from the ground.
+     */
+    private void creditHarvestedBeans(List<ItemStack> drops) {
+        if (!plugin.configManager().settings().allowAutomatedFarms()) {
+            return;
+        }
+        CropDefinition crop = plugin.configManager().cropByItem(Material.COCOA_BEANS);
+        if (crop == null) {
+            return;
+        }
+        int amount = takeBeans(drops);
+        if (amount > 0) {
+            plugin.recordAutomatedPickup(crop, amount);
+        }
     }
 
     private void prepare(List<Block> movedBlocks, BlockFace movement) {
@@ -203,6 +224,19 @@ public final class CocoaAutoReplantListener implements Listener {
             return true;
         }
         return false;
+    }
+
+    static int takeBeans(List<ItemStack> drops) {
+        int total = 0;
+        Iterator<ItemStack> iterator = drops.iterator();
+        while (iterator.hasNext()) {
+            ItemStack stack = iterator.next();
+            if (stack.getType() == Material.COCOA_BEANS) {
+                total += stack.getAmount();
+                iterator.remove();
+            }
+        }
+        return total;
     }
 
     static boolean isAttachedToSupport(BlockFace cocoaFacing, BlockFace sideFromSupport) {

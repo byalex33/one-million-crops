@@ -99,6 +99,7 @@ public final class MainCommand implements CommandExecutor, TabCompleter {
                 }
             }
             case "reload" -> plugin.reloadPlugin(sender);
+            case "automode" -> plugin.toggleAutoHarvest(sender);
             case "backup" -> plugin.backup(sender);
             case "reset" -> reset(sender, args);
             case "summary" -> summary(sender, args);
@@ -187,7 +188,7 @@ public final class MainCommand implements CommandExecutor, TabCompleter {
                 options.add("plantwand");
             }
             if (sender.hasPermission("onemillion.admin")) {
-                options.addAll(List.of("crops", "reload", "backup", "reset", "summary"));
+                options.addAll(List.of("crops", "reload", "automode", "backup", "reset", "summary"));
             }
             String prefix = args[0].toLowerCase(Locale.ROOT);
             return options.stream().filter(option -> option.startsWith(prefix)).toList();

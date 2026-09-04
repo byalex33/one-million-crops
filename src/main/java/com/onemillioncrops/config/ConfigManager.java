@@ -489,6 +489,23 @@ public final class ConfigManager {
         return read();
     }
 
+    public LoadedConfiguration setAllowAutomatedFarms(boolean enabled) throws IOException {
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(configFile);
+        yaml.set("counting.allow-automated-farms", enabled);
+
+        Path destination = configFile.toPath();
+        Path temporary = Files.createTempFile(destination.getParent(), "config-", ".yml.tmp");
+        Files.writeString(temporary, yaml.saveToString(), StandardCharsets.UTF_8);
+        try {
+            Files.move(temporary, destination, StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.ATOMIC_MOVE);
+        } catch (java.nio.file.AtomicMoveNotSupportedException exception) {
+            Files.move(temporary, destination, StandardCopyOption.REPLACE_EXISTING);
+        }
+        return read();
+    }
+
     private Material parseMaterial(String name, String path) {
         if (name == null) {
             plugin.getLogger().warning("Missing material at " + path);

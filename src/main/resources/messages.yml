@@ -146,6 +146,20 @@ reload-failed:
   enabled: true
   actions:
     - '[message] %prefix% <white>Reload failed. Existing progress is safe; check the console.</white>'
+automode-enabled:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Automated farms (water, pistons, hoppers) now <#8CE99A>count automatically</#8CE99A>.</white>'
+    - '[sound] UI_BUTTON_CLICK 0.7 1.35'
+automode-disabled:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Automated farms (water, pistons, hoppers) no longer count without a player harvesting.</white>'
+    - '[sound] UI_BUTTON_CLICK 0.7 0.8'
+automode-toggle-failed:
+  enabled: true
+  actions:
+    - '[message] %prefix% <white>Automode could not be updated. Check the console.</white>'
 reset-failed:
   enabled: true
   actions:
@@ -284,6 +298,7 @@ admin-help:
   enabled: true
   actions:
     - '[message] <gray>Admin:</gray> <#8CE99A>/1m crops</#8CE99A> <dark_gray>—</dark_gray> <white>manage challenge crops</white>'
+    - '[message] <gray>Admin:</gray> <#8CE99A>/1m automode</#8CE99A> <dark_gray>—</dark_gray> <white>toggle crediting for water/piston/hopper farms</white>'
     - '[message] <gray>Admin:</gray> <#8CE99A>/1m summary [now]</#8CE99A> <dark_gray>—</dark_gray> <white>inspect or run the harvest report</white>'
     - '[message] <gray>Admin:</gray> <#8CE99A>/1m backup</#8CE99A> <dark_gray>|</dark_gray> <#8CE99A>reload</#8CE99A> <dark_gray>|</dark_gray> <red>reset [crop] confirm</red>'
 status:

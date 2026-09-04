@@ -269,6 +269,29 @@ public final class OneMillionCropsPlugin extends JavaPlugin {
         });
     }
 
+    public void toggleAutoHarvest(CommandSender sender) {
+        if (!beginOperation(sender, false)) {
+            return;
+        }
+        boolean enable = !configManager.settings().allowAutomatedFarms();
+        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            try {
+                ConfigManager.LoadedConfiguration loaded = configManager.setAllowAutomatedFarms(enable);
+                runSyncIfActive(() -> {
+                    configManager.apply(loaded);
+                    endOperation();
+                    sendActions(enable ? "automode-enabled" : "automode-disabled", sender, Map.of());
+                });
+            } catch (Exception exception) {
+                getLogger().log(Level.SEVERE, "Could not toggle automated farm crediting", exception);
+                runSyncIfActive(() -> {
+                    endOperation();
+                    sendActions("automode-toggle-failed", sender, Map.of());
+                });
+            }
+        });
+    }
+
     public void backup(CommandSender sender) {
         if (!beginOperation(sender, false)) {
             return;
